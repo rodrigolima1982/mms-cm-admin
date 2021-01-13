@@ -1,0 +1,16 @@
+<smil>
+	<head>
+		<root-layout id="main" width="640px" height="480px">
+			<region id="Title" left="0%" width="100%" z-axis="3" />
+			<region id="Video" fit="fill" height="50%" width="100%" z-axis="2" />
+			<region id="Text" left="0%" width="100%" z-axis="1" />
+		</root-layout>
+	</head>
+	<body>
+		<par dur="5000ms">
+			<text region="Title" src="cid:title" />
+			<video region="Video" src="cid:video" />
+			<text region="Text" src="cid:text" />
+		</par>
+	</body>
+</smil>
