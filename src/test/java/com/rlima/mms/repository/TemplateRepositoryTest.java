@@ -10,7 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.rlima.mms.model.Template;
+import com.mms.model.Template;
+import com.mms.repository.TemplateRepository;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
