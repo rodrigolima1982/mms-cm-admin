@@ -1,0 +1,14 @@
+<smil>
+	<head>
+		<root-layout id="main" width="640px" height="480px">
+			<region id="Image" fit="fill" height="100%" width="100%" z-axis="2" />
+			<region id="Text" left="0%" width="100%" z-axis="1" />
+		</root-layout>
+	</head>
+	<body>
+		<par dur="60000ms">
+			<img region="Image" src="cid:image" />
+			<text region="Text" src="cid:text" />
+		</par>
+	</body>
+</smil>
