@@ -43,6 +43,11 @@ public class CampaignController {
 	@RequestMapping(value = "/list/{startDate}/{endDate}", method = RequestMethod.GET)
 	public List<Campaign> listByDateRange(@PathVariable Date startDate, @PathVariable Date endDate) {
 
-		return campaignService.listCampaignByDateRange(startDate, endDate);
+		try {
+			return campaignService.listCampaignByDateRange(startDate, endDate);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error Listing the Campaign", e);
+		}
+		
 	}
 }
