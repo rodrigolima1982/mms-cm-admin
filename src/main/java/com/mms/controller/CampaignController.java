@@ -21,7 +21,6 @@ import com.mms.service.CampaignService;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/campaign")
-@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 public class CampaignController {
 
 	@Autowired

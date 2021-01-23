@@ -53,6 +53,24 @@ public class Campaign {
 	public Campaign() {
 		super();
 	}
+	
+
+	public Campaign(@NotBlank @Size(max = 20) String name, @NotBlank int senderShortNumber, boolean isEnableDLR,
+			boolean isEnabledReadReceipt, LocalDate startDate, LocalDate endDate, Set<Client> clients,
+			Template template, Operator operator) {
+		super();
+		this.name = name;
+		this.senderShortNumber = senderShortNumber;
+		this.isEnableDLR = isEnableDLR;
+		this.isEnabledReadReceipt = isEnabledReadReceipt;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.clients = clients;
+		this.template = template;
+		this.operator = operator;
+	}
+
+
 
 	public Long getId() {
 		return id;
