@@ -13,6 +13,10 @@ public class TemplateService {
 	@Autowired
 	private TemplateRepository repository;
 	
+	public void setRepository(TemplateRepository repository) {
+		this.repository=repository;
+	}
+	
 	/**
 	 * Create new template
 	 * @param template

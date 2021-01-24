@@ -25,10 +25,6 @@ public class TemplateController {
 	@Autowired
 	private TemplateService service;
 	
-	public void setService(TemplateService service) {
-		this.service = service;
-	}
-	
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
