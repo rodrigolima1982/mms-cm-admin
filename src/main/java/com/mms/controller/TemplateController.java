@@ -2,6 +2,7 @@ package com.mms.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,9 +32,11 @@ public class TemplateController {
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
-	public Template create(@RequestBody Template template) {
+	public ResponseEntity<Template> create(@RequestBody Template template) {
 		try {
-			return service.createTemplate(template);
+			Template created =  service.createTemplate(template);
+			
+			return ResponseEntity.status(HttpStatus.CREATED).body(created);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error Creating the Template", e);
 		}

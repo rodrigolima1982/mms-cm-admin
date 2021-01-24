@@ -20,8 +20,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mms.model.Template;
 import com.mms.security.services.UserDetailsServiceImpl;
 import com.mms.service.TemplateService;
@@ -45,35 +49,52 @@ public class TemplateControllerTest {
 
 	@Mock
 	private TemplateService service;
-	
-	private Template template;
-	
-	@InjectMocks
-    private TemplateController templateController;
 
-    @Before
-    public void init() {
-        templateController.setService(service);
-    }
+	private Template template;
+
+	@InjectMocks
+	private TemplateController templateController;
+
+	@Before
+	public void init() {
+		templateController.setService(service);
+	}
 
 	@BeforeEach
 	void setUp() {
-		
+
 		this.template = new Template("Test Name", "Test Subject", "Test Description", null);
-		
+
 		this.mockMvc = MockMvcBuilders.standaloneSetup(templateController).build();
 	}
-	
+
 	@Test
-	@WithMockUser(username="admin",roles={"USER","ADMIN"})
-    void shouldFetchOneUserById() throws Exception {
+	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
+	void shouldFetchOneTemplateById() throws Exception {
 
 		given(service.get(1L)).willReturn(template);
 
-        this.mockMvc.perform(get("/api/template/get/{id}", 1))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(template.getName())))
-                .andExpect(jsonPath("$.subject", is(template.getSubject())));
-    }
+		this.mockMvc.perform(get("/api/template/get/{id}", 1)).andDo(MockMvcResultHandlers.print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.name", is(template.getName())))
+				.andExpect(jsonPath("$.subject", is(template.getSubject())));
+	}
 
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
+	public void createTemplateAPI() throws Exception {
+		given(service.createTemplate(any(Template.class))).willReturn(template);
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/template/create").content(asJsonString(template))
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.name", is(template.getName())))
+				.andExpect(jsonPath("$.subject", is(template.getSubject())));
+	}
+
+	public static String asJsonString(final Object obj) {
+		try {
+			return new ObjectMapper().writeValueAsString(obj);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
