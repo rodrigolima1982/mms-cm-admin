@@ -25,8 +25,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mms.exception.RecordNotFoundException;
 import com.mms.model.Template;
 import com.mms.service.TemplateService;
+import com.mms.vo.CreateTemplateDto;
+import com.mms.vo.TemplateDto;
 
 @WebMvcTest(controllers = TemplateController.class)
 @ActiveProfiles("test")
@@ -41,6 +44,10 @@ public class TemplateControllerTest {
 	private TemplateService service;
 
 	private Template template;
+	
+	private TemplateDto updateTemplateVO;
+	
+	private CreateTemplateDto createTemplateVO;
 
 	@InjectMocks
 	private TemplateController templateController;
@@ -50,7 +57,11 @@ public class TemplateControllerTest {
 
 		MockitoAnnotations.initMocks(this);
 		
-		this.template = new Template("Test Name", "Test Subject", "Test Description", null);
+		this.template = new Template(1L, "Test Name", "Test Subject", "Test Description", null);
+		
+		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", null);
+		
+		this.createTemplateVO = new CreateTemplateDto(1L, "Created Name", "Created Subject", "Created Description", null);
 
 		this.mockMvc = MockMvcBuilders.standaloneSetup(templateController).build();
 	}
@@ -59,22 +70,45 @@ public class TemplateControllerTest {
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
 	void shouldFetchOneTemplateById() throws Exception {
 
-		given(service.get(1L)).willReturn(template);
+		given(service.get(1L)).willReturn(updateTemplateVO);
 
 		this.mockMvc.perform(get("/api/template/get/{id}", 1)).andDo(MockMvcResultHandlers.print())
-				.andExpect(status().isOk()).andExpect(jsonPath("$.name", is(template.getName())))
-				.andExpect(jsonPath("$.subject", is(template.getSubject())));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.name", is(updateTemplateVO.getName())))
+				.andExpect(jsonPath("$.subject", is(updateTemplateVO.getSubject())));
 	}
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
-	public void createTemplateAPI() throws Exception {
-		given(service.createTemplate(any(Template.class))).willReturn(template);
+	public void testCreateTemplateSuccess() throws Exception {
+		given(service.createTemplate(any(CreateTemplateDto.class))).willReturn(this.createTemplateVO);
 		mockMvc.perform(MockMvcRequestBuilders.post("/api/template/create").content(asJsonString(template))
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated())
-				.andExpect(jsonPath("$.name", is(template.getName())))
-				.andExpect(jsonPath("$.subject", is(template.getSubject())));
+				.andExpect(jsonPath("$.name", is(createTemplateVO.getName())))
+				.andExpect(jsonPath("$.subject", is(createTemplateVO.getSubject())));
+	}
+	
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
+	public void testUpdateTemplateSuccess() throws Exception {
+		given(service.updateTemplate(any(TemplateDto.class))).willReturn(updateTemplateVO);
+		
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/template/update/{id}", String.valueOf(updateTemplateVO.getId())).content(asJsonString(updateTemplateVO))
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andDo(MockMvcResultHandlers.print()).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name", is(updateTemplateVO.getName())))
+				.andExpect(jsonPath("$.subject", is(updateTemplateVO.getSubject())));
+	}
+	
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
+	public void testUpdateTemplateNotFound() throws Exception {
+		given(service.updateTemplate(any(TemplateDto.class))).willThrow(RecordNotFoundException.class);
+		
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/template/update/{id}", "2").content(asJsonString(updateTemplateVO))
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andDo(MockMvcResultHandlers.print()).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$").doesNotExist());
 	}
 
 	public static String asJsonString(final Object obj) {
