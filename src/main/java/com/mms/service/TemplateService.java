@@ -1,6 +1,9 @@
 package com.mms.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -90,10 +93,11 @@ public class TemplateService {
 	 * @param name
 	 * @return
 	 */
-	public List<TemplateDto> getTemplateListPaginated(int page, int size, String name) {
+	public Map<String, Object> getTemplateListPaginated(int page, int size, String name) {
 		Pageable paging = PageRequest.of(page, size);
 
 		Page<Template> templatePages;
+		List<TemplateDto> templateListVo=new ArrayList<TemplateDto>();
 
 		if (name != null && !name.isEmpty()) {
 			templatePages = repository.findByNameContaining(name, paging);
@@ -101,13 +105,22 @@ public class TemplateService {
 			templatePages = repository.findAll(paging);
 		}
 
-		List<Template> templateList = templatePages.getContent();
+		if(templatePages!=null && !templatePages.isEmpty()) {
+			List<Template> templateList = templatePages.getContent();
 
-		List<TemplateDto> templateListVo = templateList.stream()
-				.map(template -> (TemplateDto) new DtoUtils().convertToDto(template, new TemplateDto()))
-				.collect(Collectors.toList());
+			templateListVo = templateList.stream()
+					.map(template -> (TemplateDto) new DtoUtils().convertToDto(template, new TemplateDto()))
+					.collect(Collectors.toList());
+		}
+		
+		Map<String, Object> response = new HashMap<>();
+	      response.put("templates", templateListVo);
+	      response.put("currentPage", templatePages.getNumber());
+	      response.put("totalItems", templatePages.getTotalElements());
+	      response.put("totalPages", templatePages.getTotalPages());
+		
 
-		return templateListVo;
+		return response;
 	}
 
 }

@@ -7,6 +7,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -68,7 +73,7 @@ public class TemplateControllerTest {
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
-	void shouldFetchOneTemplateById() throws Exception {
+	void testGetById() throws Exception {
 
 		given(service.get(1L)).willReturn(updateTemplateVO);
 
@@ -109,6 +114,33 @@ public class TemplateControllerTest {
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$").doesNotExist());
+	}
+	
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
+	void testGetAll() throws Exception {
+
+		TemplateDto templateOne = new TemplateDto(1L, "Test Name 01", "Test Subject 01", "Test Description 01", null);
+		TemplateDto templateTwo = new TemplateDto(2L, "Test Name 02", "Test Subject 02", "Test Description 02", null);
+		TemplateDto templateThree = new TemplateDto(3L, "Test Name 03", "Test Subject 03", "Test Description 03", null);
+		
+		List<TemplateDto> templateListDto = new ArrayList<TemplateDto>();
+		templateListDto.add(templateOne);
+		templateListDto.add(templateTwo);
+		templateListDto.add(templateThree);
+		
+		Map<String, Object> response = new HashMap<>();
+	      response.put("templates", templateListDto);
+	      response.put("currentPage", 0);
+	      response.put("totalItems", 3);
+	      response.put("totalPages", 1);
+		
+	      given(service.getTemplateListPaginated(0, 3, "name")).willReturn(response);
+
+		this.mockMvc.perform(get("/api/template/getAll").param("size", "3").param("page", "0").param("name", "name")).andDo(MockMvcResultHandlers.print())
+				.andExpect(status().isOk()).andExpect(jsonPath("$.templates.size()", is(3)))
+				.andExpect(jsonPath("$.currentPage", is(0))).andExpect(jsonPath("$.totalItems", is(3)))
+				.andExpect(jsonPath("$.totalPages", is(1)));
 	}
 
 	public static String asJsonString(final Object obj) {

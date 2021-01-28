@@ -1,5 +1,7 @@
 package com.mms.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,52 +29,70 @@ public class TemplateController {
 
 	@Autowired
 	private TemplateService service;
-	
+
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<CreateTemplateDto> create(@RequestBody CreateTemplateDto createTemplateVO) {
 		try {
-			CreateTemplateDto createdTemplateVo =  service.createTemplate(createTemplateVO);
-			
+			CreateTemplateDto createdTemplateVo = service.createTemplate(createTemplateVO);
+
 			return ResponseEntity.status(HttpStatus.CREATED).body(createdTemplateVo);
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
 	}
-	
+
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@GetMapping("/get/{id}")
 	@ResponseBody
 	public ResponseEntity<TemplateDto> getTemplateById(@PathVariable String id) {
-		
+
 		try {
-			TemplateDto updateTemplateVO =  service.get(Long.parseLong(id));
-			
+			TemplateDto updateTemplateVO = service.get(Long.parseLong(id));
+
 			return ResponseEntity.ok().body(updateTemplateVO);
 		} catch (NumberFormatException e) {
 			return ResponseEntity.badRequest().build();
 		} catch (RecordNotFoundException e) {
 			return ResponseEntity.notFound().build();
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
+
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@PutMapping("/update/{id}")
 	@ResponseBody
 	public ResponseEntity<TemplateDto> update(@PathVariable String id, @RequestBody TemplateDto updateTemplateVO) {
-		
+
 		TemplateDto updatedVO;
 		try {
-			
+
 			updatedVO = service.updateTemplate(updateTemplateVO);
 			return ResponseEntity.ok().body(updatedVO);
-			
+
 		} catch (RecordNotFoundException e) {
 			return ResponseEntity.notFound().build();
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
-	
+
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@GetMapping("/getAll")
+	public ResponseEntity<Map<String, Object>> getAllTemplates(@RequestParam(required = false) String name,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+
+		try {
+			Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
+			
+			return  ResponseEntity.ok().body(response);
+		}catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+		
+	}
+
 }
