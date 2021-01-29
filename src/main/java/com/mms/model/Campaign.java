@@ -21,7 +21,7 @@ import javax.validation.constraints.Size;
 public class Campaign {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
 	@NotBlank

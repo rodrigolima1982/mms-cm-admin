@@ -47,8 +47,8 @@ public class TemplateServiceTest {
 	void setUp() {
 
 		MockitoAnnotations.initMocks(this);
-		this.template = Optional.of(new Template(1L, "Test Name", "Test Subject", "Test Description", null));
-		this.updatedTemplate = new Template(1L, "Updated Name", "Updated Subject", "Updated Description", null);
+		this.template = Optional.of(new Template("Test Name", "Test Subject", "Test Description", null));
+		this.updatedTemplate = new Template("Updated Name", "Updated Subject", "Updated Description", null);
 		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", null);
 
 	}
@@ -115,9 +115,9 @@ public class TemplateServiceTest {
 		int size = 10;
 		String name = "Test";
 
-		Template templateOne = new Template(1L, "Test Name 01", "Test Subject 01", "Test Description 01", null);
-		Template templateTwo = new Template(2L, "Test Name 02", "Test Subject 02", "Test Description 02", null);
-		Template templateThree = new Template(3L, "Test Name 03", "Test Subject 03", "Test Description 03", null);
+		Template templateOne = new Template("Test Name 01", "Test Subject 01", "Test Description 01", null);
+		Template templateTwo = new Template("Test Name 02", "Test Subject 02", "Test Description 02", null);
+		Template templateThree = new Template("Test Name 03", "Test Subject 03", "Test Description 03", null);
 
 		List<Template> templateList = new ArrayList<Template>();
 		templateList.add(templateOne);
@@ -145,9 +145,9 @@ public class TemplateServiceTest {
 		int size = 10;
 		String name = null;
 
-		Template templateOne = new Template(1L, "Test Name 01", "Test Subject 01", "Test Description 01", null);
-		Template templateTwo = new Template(2L, "Test Name 02", "Test Subject 02", "Test Description 02", null);
-		Template templateThree = new Template(3L, "Test Name 03", "Test Subject 03", "Test Description 03", null);
+		Template templateOne = new Template("Test Name 01", "Test Subject 01", "Test Description 01", null);
+		Template templateTwo = new Template("Test Name 02", "Test Subject 02", "Test Description 02", null);
+		Template templateThree = new Template("Test Name 03", "Test Subject 03", "Test Description 03", null);
 
 		List<Template> templateList = new ArrayList<Template>();
 		templateList.add(templateOne);

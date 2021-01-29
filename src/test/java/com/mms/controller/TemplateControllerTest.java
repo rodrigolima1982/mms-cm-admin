@@ -62,7 +62,7 @@ public class TemplateControllerTest {
 
 		MockitoAnnotations.initMocks(this);
 		
-		this.template = new Template(1L, "Test Name", "Test Subject", "Test Description", null);
+		this.template = new Template("Test Name", "Test Subject", "Test Description", null);
 		
 		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", null);
 		

@@ -16,14 +16,13 @@ import javax.validation.constraints.Size;
 @Table(name = "template", uniqueConstraints = { @UniqueConstraint(columnNames = "name") })
 public class Template {
 
-	public Template(@NotBlank Long id, @NotBlank @Size(max = 20) String name, @NotBlank @Size(max = 30) String subject, String description,
+	public Template(@NotBlank @Size(max = 20) String name, @NotBlank @Size(max = 30) String subject, String description,
 			Set<Slide> slides) {
 		super();
 		this.name = name;
 		this.subject = subject;
 		this.description = description;
 		this.slides = slides;
-		this.id=id;
 	}
 
 	public Template() {
@@ -31,7 +30,7 @@ public class Template {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
 	@NotBlank

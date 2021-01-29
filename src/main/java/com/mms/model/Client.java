@@ -16,7 +16,7 @@ import javax.validation.constraints.NotBlank;
 public class Client {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
 	@NotBlank
