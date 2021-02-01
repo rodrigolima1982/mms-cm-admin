@@ -1,4 +1,4 @@
-package com.mms.util.dto;
+package com.mms.dto.util;
 
 import org.modelmapper.ModelMapper;
 

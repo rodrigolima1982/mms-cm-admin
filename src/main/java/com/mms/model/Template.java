@@ -2,6 +2,7 @@ package com.mms.model;
 
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -43,7 +44,7 @@ public class Template {
 
 	private String description;
 
-	@OneToMany(mappedBy = "template")
+	@OneToMany(mappedBy = "template", cascade = CascadeType.ALL)
 	private Set<Slide> slides;
 
 	@OneToMany(mappedBy = "template")

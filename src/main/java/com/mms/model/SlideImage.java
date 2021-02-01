@@ -1,10 +1,10 @@
 package com.mms.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
@@ -12,16 +12,16 @@ import javax.validation.constraints.NotBlank;
 @Table(name = "slide_image")
 public class SlideImage {
 
-	public SlideImage(String name, String type, byte[] picByte) {
-		this.name = name;
-		this.type = type;
-		this.picByte = picByte;
-	}
-
 	public SlideImage() {
 		super();
 	}
 
+	public SlideImage(@NotBlank String type, @NotBlank String name, byte[] data) {
+		super();
+		this.type = type;
+		this.name = name;
+		this.data = data;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,8 +33,8 @@ public class SlideImage {
 	@NotBlank
 	private String name;
 
-	@Column(name = "picByte", length = 200000)
-	private byte[] picByte;
+	@Lob
+	private byte[] data;
 
 	public String getName() {
 
@@ -60,15 +60,15 @@ public class SlideImage {
 
 	}
 
-	public byte[] getPicByte() {
+	public byte[] getData() {
 
-		return picByte;
+		return data;
 
 	}
 
-	public void setPicByte(byte[] picByte) {
+	public void setPicByte(byte[] data) {
 
-		this.picByte = picByte;
+		this.data = data;
 
 	}
 

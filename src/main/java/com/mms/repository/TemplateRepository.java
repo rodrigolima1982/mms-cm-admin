@@ -17,4 +17,6 @@ public interface TemplateRepository extends JpaRepository<Template, Long> {
 	Page<Template> findAll(Pageable pageable);
 	
 	Page <Template> findByNameContaining(String name, Pageable pageable);
+	
+	Template findByName(String name);
 }

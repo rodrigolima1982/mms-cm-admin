@@ -1,9 +1,11 @@
 package com.mms.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,13 +16,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.mms.dto.CreateTemplateDto;
+import com.mms.dto.TemplateDto;
 import com.mms.exception.RecordNotFoundException;
 import com.mms.service.TemplateService;
-import com.mms.vo.CreateTemplateDto;
-import com.mms.vo.TemplateDto;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -31,9 +35,9 @@ public class TemplateController {
 	private TemplateService service;
 
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	@RequestMapping(value = "/create", method = RequestMethod.POST)
+	@RequestMapping(value = "/create", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE })
 	@ResponseBody
-	public ResponseEntity<CreateTemplateDto> create(@RequestBody CreateTemplateDto createTemplateVO) {
+	public ResponseEntity<CreateTemplateDto> create(@RequestPart CreateTemplateDto createTemplateVO, @RequestPart List<MultipartFile> file) {
 		try {
 			CreateTemplateDto createdTemplateVo = service.createTemplate(createTemplateVO);
 
@@ -87,12 +91,12 @@ public class TemplateController {
 
 		try {
 			Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
-			
-			return  ResponseEntity.ok().body(response);
-		}catch (Exception e) {
+
+			return ResponseEntity.ok().body(response);
+		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
-		
+
 	}
 
 }

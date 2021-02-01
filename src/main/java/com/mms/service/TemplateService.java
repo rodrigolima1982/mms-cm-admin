@@ -1,5 +1,6 @@
 package com.mms.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +15,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.mms.dto.CreateTemplateDto;
+import com.mms.dto.TemplateDto;
+import com.mms.dto.util.DtoUtils;
+import com.mms.exception.DuplicatedRecordNameException;
 import com.mms.exception.RecordNotFoundException;
 import com.mms.model.Template;
 import com.mms.repository.TemplateRepository;
-import com.mms.util.dto.DtoUtils;
-import com.mms.vo.CreateTemplateDto;
-import com.mms.vo.TemplateDto;
 
 @ManagedBean
 public class TemplateService {
@@ -36,14 +38,22 @@ public class TemplateService {
 	 * 
 	 * @param template
 	 * @return
+	 * @throws IOException 
+	 * @throws DuplicatedRecordNameException 
 	 */
-	public CreateTemplateDto createTemplate(CreateTemplateDto createTemplateVO) {
+	public CreateTemplateDto createTemplate(CreateTemplateDto createTemplateVO) throws DuplicatedRecordNameException {
+		
+		if(repository.findByName(createTemplateVO.getName())!=null) {
+			
+			throw new DuplicatedRecordNameException("There is another Template with the same name, please choose another name");
+			
+		}else {
+			Template newTemplate = (Template) new DtoUtils().convertToEntity(new Template(), createTemplateVO);
 
-		Template newTemplate = (Template) new DtoUtils().convertToEntity(new Template(), createTemplateVO);
+			newTemplate = repository.save(newTemplate);
 
-		newTemplate = repository.save(newTemplate);
-
-		return (CreateTemplateDto) new DtoUtils().convertToDto(newTemplate, createTemplateVO);
+			return (CreateTemplateDto) new DtoUtils().convertToDto(newTemplate, createTemplateVO);
+		}
 	}
 
 	/**

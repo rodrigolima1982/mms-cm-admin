@@ -9,8 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -30,11 +33,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.mms.dto.CreateTemplateDto;
+import com.mms.dto.SlideDTO;
+import com.mms.dto.TemplateDto;
 import com.mms.exception.RecordNotFoundException;
 import com.mms.model.Template;
 import com.mms.service.TemplateService;
-import com.mms.vo.CreateTemplateDto;
-import com.mms.vo.TemplateDto;
 
 @WebMvcTest(controllers = TemplateController.class)
 @ActiveProfiles("test")
@@ -47,8 +52,6 @@ public class TemplateControllerTest {
 
 	@Mock
 	private TemplateService service;
-
-	private Template template;
 	
 	private TemplateDto updateTemplateVO;
 	
@@ -56,19 +59,25 @@ public class TemplateControllerTest {
 
 	@InjectMocks
 	private TemplateController templateController;
+	
+	MockMultipartFile file;
 
 	@BeforeEach
 	void setUp() {
 
 		MockitoAnnotations.initMocks(this);
 		
-		this.template = new Template("Test Name", "Test Subject", "Test Description", null);
-		
 		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", null);
 		
-		this.createTemplateVO = new CreateTemplateDto(1L, "Created Name", "Created Subject", "Created Description", null);
+		this.file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
+				"Hello, World!".getBytes());
+
+		
+		this.createTemplateVO = new CreateTemplateDto("Created Name", "Created Subject", "Created Description", null);
 
 		this.mockMvc = MockMvcBuilders.standaloneSetup(templateController).build();
+		
+		
 	}
 
 	@Test
@@ -86,8 +95,8 @@ public class TemplateControllerTest {
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
 	public void testCreateTemplateSuccess() throws Exception {
 		given(service.createTemplate(any(CreateTemplateDto.class))).willReturn(this.createTemplateVO);
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/template/create").content(asJsonString(template))
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/api/template/create", file).content(asJsonString(createTemplateVO))
+				.contentType(MediaType.MULTIPART_FORM_DATA).accept(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated())
 				.andExpect(jsonPath("$.name", is(createTemplateVO.getName())))
 				.andExpect(jsonPath("$.subject", is(createTemplateVO.getSubject())));
@@ -145,7 +154,7 @@ public class TemplateControllerTest {
 
 	public static String asJsonString(final Object obj) {
 		try {
-			return new ObjectMapper().writeValueAsString(obj);
+			return new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS).writeValueAsString(obj);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

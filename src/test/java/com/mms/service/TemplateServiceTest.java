@@ -1,5 +1,6 @@
 package com.mms.service;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -7,10 +8,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,11 +26,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 
+import com.mms.dto.CreateTemplateDto;
+import com.mms.dto.SlideDTO;
+import com.mms.dto.TemplateDto;
+import com.mms.exception.DuplicatedRecordNameException;
 import com.mms.exception.RecordNotFoundException;
+import com.mms.model.Slide;
+import com.mms.model.SlideImage;
 import com.mms.model.Template;
 import com.mms.repository.TemplateRepository;
-import com.mms.vo.TemplateDto;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TemplateServiceTest {
@@ -39,9 +50,17 @@ public class TemplateServiceTest {
 
 	private Optional<Template> template;
 
+	private CreateTemplateDto createTemplateDto;
+
 	private TemplateDto updateTemplateVO;
 
 	private Template updatedTemplate;
+
+	private Template createdTemplate;
+
+	private Slide createdSlide;
+
+	private SlideDTO slideDTO;
 
 	@BeforeEach
 	void setUp() {
@@ -50,6 +69,31 @@ public class TemplateServiceTest {
 		this.template = Optional.of(new Template("Test Name", "Test Subject", "Test Description", null));
 		this.updatedTemplate = new Template("Updated Name", "Updated Subject", "Updated Description", null);
 		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", null);
+
+		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
+				"Hello, World!".getBytes());
+
+		this.slideDTO = new SlideDTO("Venha para o TIM Controle", 30, file);
+		Set<SlideDTO> slides = new HashSet<SlideDTO>();
+		slides.add(slideDTO);
+
+		this.createTemplateDto = new CreateTemplateDto("Teste Template", "Template Subject", "Template Description",
+				slides);
+		this.createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+
+		SlideImage image = null;
+		createdTemplate.setSlides(new HashSet<Slide>());
+
+		for (SlideDTO slideDTO : createTemplateDto.getSlides()) {
+			try {
+				image = new SlideImage(slideDTO.getImage().getContentType(), slideDTO.getImage().getOriginalFilename(),
+						slideDTO.getImage().getBytes());
+				createdSlide = new Slide(slideDTO.getText(), slideDTO.getDuration(), image);
+				createdTemplate.getSlides().add(createdSlide);
+			} catch (IOException e) {
+				fail(e);
+			}
+		}
 
 	}
 
@@ -129,16 +173,16 @@ public class TemplateServiceTest {
 		given(repository.findByNameContaining(any(String.class), any(Pageable.class))).willReturn(list);
 
 		Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
-		
+
 		@SuppressWarnings("unchecked")
 		List<TemplateDto> templateDtoList = (List<TemplateDto>) response.get("templates");
-		
+
 		assertEquals(templateDtoList.size(), templateList.size());
-		assertEquals((long)response.get("totalItems"), 3);
+		assertEquals((long) response.get("totalItems"), 3);
 		verify(repository, times(1)).findByNameContaining(any(String.class), any(Pageable.class));
 
 	}
-	
+
 	@Test
 	public void testGetTemplateListPaginatedWithoutName() {
 		int page = 1;
@@ -159,23 +203,22 @@ public class TemplateServiceTest {
 		given(repository.findAll(any(Pageable.class))).willReturn(list);
 
 		Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
-		
+
 		@SuppressWarnings("unchecked")
 		List<TemplateDto> templateDtoList = (List<TemplateDto>) response.get("templates");
-		
+
 		assertEquals(templateDtoList.size(), templateList.size());
-		assertEquals((long)response.get("totalItems"), 3);
-		
+		assertEquals((long) response.get("totalItems"), 3);
+
 		verify(repository, times(1)).findAll(any(Pageable.class));
 
 	}
-	
+
 	@Test
 	public void testGetTemplateListPaginatedReturningEmpty() {
 		int page = 1;
 		int size = 10;
 		String name = null;
-
 
 		List<Template> templateList = new ArrayList<Template>();
 
@@ -184,17 +227,45 @@ public class TemplateServiceTest {
 		given(repository.findAll(any(Pageable.class))).willReturn(list);
 
 		Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
-		
+
 		@SuppressWarnings("unchecked")
 		List<TemplateDto> templateDtoList = (List<TemplateDto>) response.get("templates");
-		
+
 		assertEquals(templateDtoList.size(), templateList.size());
-		assertEquals((long)response.get("totalItems"), 0);
-		
+		assertEquals((long) response.get("totalItems"), 0);
+
 		verify(repository, times(1)).findAll(any(Pageable.class));
 
 	}
+
+	@Test
+	public void testCreateTemplate() {
+
+		given(repository.save(any(Template.class))).willReturn(this.createdTemplate);
+
+		CreateTemplateDto templateDto = null;
+
+		try {
+			templateDto = service.createTemplate(this.createTemplateDto);
+		} catch (DuplicatedRecordNameException e) {
+			fail(e);
+		}
+
+		assertEquals(this.createTemplateDto.getName(), templateDto.getName());
+
+	}
 	
-	
+	@Test
+	public void testCreateTemplateWithSameName() {
+
+		given(repository.findByName(any(String.class))).willReturn(this.createdTemplate);
+
+		try {
+			service.createTemplate(this.createTemplateDto);
+		} catch (DuplicatedRecordNameException e) {
+			assertTrue(e.getMessage().equals("There is another Template with the same name, please choose another name"));
+		}
+
+	}
 
 }

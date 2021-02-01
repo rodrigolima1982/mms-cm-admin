@@ -1,11 +1,10 @@
-package com.mms.vo;
+package com.mms.dto;
 
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import com.mms.model.Slide;
-import com.mms.util.dto.DTOEntity;
+import com.mms.dto.util.DTOEntity;
 
 public class CreateTemplateDto implements DTOEntity {
 	
@@ -17,17 +16,16 @@ public class CreateTemplateDto implements DTOEntity {
 
 	private String description;
 
-	private Set<Slide> slides;
+	private Set<SlideDTO> slidesDTO;
 
-	public CreateTemplateDto(@NotNull Long id, @NotNull String name, @NotNull String subject, String description,
-			Set<Slide> slides) {
+
+	public CreateTemplateDto(@NotNull String name, @NotNull String subject, String description, Set<SlideDTO> slides) {
 		super();
 		this.name = name;
 		this.subject = subject;
 		this.description = description;
-		this.slides = slides;
+		this.slidesDTO = slides;
 	}
-	
 
 	public CreateTemplateDto() {
 		super();
@@ -57,12 +55,12 @@ public class CreateTemplateDto implements DTOEntity {
 		this.description = description;
 	}
 
-	public Set<Slide> getSlides() {
-		return slides;
+	public Set<SlideDTO> getSlides() {
+		return slidesDTO;
 	}
 
-	public void setSlides(Set<Slide> slides) {
-		this.slides = slides;
+	public void setSlides(Set<SlideDTO> slides) {
+		this.slidesDTO = slides;
 	}
 
 }

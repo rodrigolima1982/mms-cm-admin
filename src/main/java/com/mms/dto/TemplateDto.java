@@ -1,11 +1,11 @@
-package com.mms.vo;
+package com.mms.dto;
 
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import com.mms.dto.util.DTOEntity;
 import com.mms.model.Slide;
-import com.mms.util.dto.DTOEntity;
 
 public class TemplateDto implements DTOEntity {
 
