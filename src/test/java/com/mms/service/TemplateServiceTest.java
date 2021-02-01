@@ -28,6 +28,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mms.dto.CreateTemplateDto;
 import com.mms.dto.SlideDTO;
@@ -61,6 +62,8 @@ public class TemplateServiceTest {
 	private Slide createdSlide;
 
 	private SlideDTO slideDTO;
+	
+	private List<MultipartFile> files = new ArrayList<MultipartFile>();
 
 	@BeforeEach
 	void setUp() {
@@ -72,6 +75,7 @@ public class TemplateServiceTest {
 
 		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
 				"Hello, World!".getBytes());
+		files.add(file);
 
 		this.slideDTO = new SlideDTO("Venha para o TIM Controle", 30, file);
 		Set<SlideDTO> slides = new HashSet<SlideDTO>();
@@ -246,8 +250,10 @@ public class TemplateServiceTest {
 		CreateTemplateDto templateDto = null;
 
 		try {
-			templateDto = service.createTemplate(this.createTemplateDto);
+			templateDto = service.createTemplate(this.createTemplateDto, files);
 		} catch (DuplicatedRecordNameException e) {
+			fail(e);
+		} catch (IOException e) {
 			fail(e);
 		}
 
@@ -261,9 +267,11 @@ public class TemplateServiceTest {
 		given(repository.findByName(any(String.class))).willReturn(this.createdTemplate);
 
 		try {
-			service.createTemplate(this.createTemplateDto);
+			service.createTemplate(this.createTemplateDto, files);
 		} catch (DuplicatedRecordNameException e) {
 			assertTrue(e.getMessage().equals("There is another Template with the same name, please choose another name"));
+		} catch (IOException e) {
+			fail(e);
 		}
 
 	}

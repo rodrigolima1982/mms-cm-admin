@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,14 +37,14 @@ public class TemplateController {
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@RequestMapping(value = "/create", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE })
 	@ResponseBody
-	public ResponseEntity<CreateTemplateDto> create(@RequestPart String createTemplateStr, @RequestPart List<MultipartFile> file) {
+	public ResponseEntity<CreateTemplateDto> create(@RequestBody String createTemplateStr, @RequestParam List<MultipartFile> file) {
 		try {
 			
 			ObjectMapper mapper = new ObjectMapper();
 			
 			CreateTemplateDto input = mapper.readValue(createTemplateStr, CreateTemplateDto.class);
 			
-			CreateTemplateDto createdTemplateVo = service.createTemplate(input);
+			CreateTemplateDto createdTemplateVo = service.createTemplate(input, file);
 
 			return ResponseEntity.status(HttpStatus.CREATED).body(createdTemplateVo);
 		} catch (Exception e) {

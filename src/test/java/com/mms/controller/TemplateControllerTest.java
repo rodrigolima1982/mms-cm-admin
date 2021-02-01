@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -38,7 +40,6 @@ import com.mms.dto.CreateTemplateDto;
 import com.mms.dto.SlideDTO;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.RecordNotFoundException;
-import com.mms.model.Template;
 import com.mms.service.TemplateService;
 
 @WebMvcTest(controllers = TemplateController.class)
@@ -61,6 +62,8 @@ public class TemplateControllerTest {
 	private TemplateController templateController;
 	
 	MockMultipartFile file;
+	
+	private SlideDTO slideDTO;
 
 	@BeforeEach
 	void setUp() {
@@ -71,10 +74,13 @@ public class TemplateControllerTest {
 		
 		this.file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
 				"Hello, World!".getBytes());
-
 		
-		this.createTemplateVO = new CreateTemplateDto("Created Name", "Created Subject", "Created Description", null);
-
+		this.slideDTO = new SlideDTO("Venha para o TIM Controle", 30, null);
+		Set<SlideDTO> slides = new HashSet<SlideDTO>();
+		slides.add(slideDTO);
+		
+		this.createTemplateVO = new CreateTemplateDto("Created Name", "Created Subject", "Created Description", slides);
+		
 		this.mockMvc = MockMvcBuilders.standaloneSetup(templateController).build();
 		
 		
@@ -94,8 +100,8 @@ public class TemplateControllerTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
 	public void testCreateTemplateSuccess() throws Exception {
-		given(service.createTemplate(any(CreateTemplateDto.class))).willReturn(this.createTemplateVO);
-		mockMvc.perform(MockMvcRequestBuilders.multipart("/api/template/create", file).content(asJsonString(createTemplateVO))
+		given(service.createTemplate(any(CreateTemplateDto.class), Mockito.<MultipartFile>anyList())).willReturn(this.createTemplateVO);
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/api/template/create").file(file).content(asJsonString(createTemplateVO))
 				.contentType(MediaType.MULTIPART_FORM_DATA).accept(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(status().isCreated())
 				.andExpect(jsonPath("$.name", is(createTemplateVO.getName())))

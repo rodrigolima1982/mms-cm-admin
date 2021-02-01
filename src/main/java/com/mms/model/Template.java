@@ -1,5 +1,6 @@
 package com.mms.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -45,7 +46,7 @@ public class Template {
 	private String description;
 
 	@OneToMany(mappedBy = "template", cascade = CascadeType.ALL)
-	private Set<Slide> slides;
+	private Set<Slide> slides = new HashSet<Slide>();
 
 	@OneToMany(mappedBy = "template")
 	private Set<Campaign> campaigns;

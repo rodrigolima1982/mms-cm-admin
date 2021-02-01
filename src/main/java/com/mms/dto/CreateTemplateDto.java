@@ -1,5 +1,6 @@
 package com.mms.dto;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -16,7 +17,7 @@ public class CreateTemplateDto implements DTOEntity {
 
 	private String description;
 
-	private Set<SlideDTO> slidesDTO;
+	private Set<SlideDTO> slidesDTO = new HashSet<SlideDTO>();
 
 
 	public CreateTemplateDto(@NotNull String name, @NotNull String subject, String description, Set<SlideDTO> slides) {
