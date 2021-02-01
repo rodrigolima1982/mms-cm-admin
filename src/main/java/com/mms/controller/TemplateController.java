@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mms.dto.CreateTemplateDto;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.RecordNotFoundException;
@@ -37,9 +38,14 @@ public class TemplateController {
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@RequestMapping(value = "/create", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE })
 	@ResponseBody
-	public ResponseEntity<CreateTemplateDto> create(@RequestPart CreateTemplateDto createTemplateVO, @RequestPart List<MultipartFile> file) {
+	public ResponseEntity<CreateTemplateDto> create(@RequestPart String createTemplateStr, @RequestPart List<MultipartFile> file) {
 		try {
-			CreateTemplateDto createdTemplateVo = service.createTemplate(createTemplateVO);
+			
+			ObjectMapper mapper = new ObjectMapper();
+			
+			CreateTemplateDto input = mapper.readValue(createTemplateStr, CreateTemplateDto.class);
+			
+			CreateTemplateDto createdTemplateVo = service.createTemplate(input);
 
 			return ResponseEntity.status(HttpStatus.CREATED).body(createdTemplateVo);
 		} catch (Exception e) {
