@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.mms.model.Campaign;
-import com.mms.model.User;
 
 @Repository
 public interface CampaignRepository extends JpaRepository<Campaign, Long> {

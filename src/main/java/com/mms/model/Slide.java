@@ -1,5 +1,6 @@
 package com.mms.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -10,6 +11,7 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
@@ -43,7 +45,8 @@ public class Slide {
 	@MapsId
 	private SlideImage image;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
+	@NotNull
 	private Template template;
 
 	public String getText() {

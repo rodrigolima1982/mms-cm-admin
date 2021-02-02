@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mms.dto.CreateTemplateDto;
-import com.mms.dto.SlideDTO;
 import com.mms.dto.TemplateDto;
 import com.mms.dto.util.DtoUtils;
 import com.mms.exception.DuplicatedRecordNameException;
