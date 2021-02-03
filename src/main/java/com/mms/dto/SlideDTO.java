@@ -5,9 +5,7 @@ import javax.validation.constraints.Size;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.mms.dto.util.DTOEntity;
+import com.mms.util.dto.DTOEntity;
 
 public class SlideDTO implements DTOEntity {
 	

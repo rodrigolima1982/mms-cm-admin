@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,22 +34,48 @@ public class TemplateController {
 	private TemplateService service;
 
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	@RequestMapping(value = "/create", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE })
+	@RequestMapping(value = "/create", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.MULTIPART_FORM_DATA_VALUE })
 	@ResponseBody
-	public ResponseEntity<CreateTemplateDto> create(@RequestBody String createTemplateStr, @RequestParam List<MultipartFile> file) {
+	public ResponseEntity<CreateTemplateDto> create(@RequestBody String createTemplateStr,
+			@RequestParam List<MultipartFile> files) {
 		try {
-			
+
 			ObjectMapper mapper = new ObjectMapper();
-			
+
 			CreateTemplateDto input = mapper.readValue(createTemplateStr, CreateTemplateDto.class);
-			
-			CreateTemplateDto createdTemplateVo = service.createTemplate(input, file);
+
+			CreateTemplateDto createdTemplateVo = service.createTemplate(input, files);
 
 			return ResponseEntity.status(HttpStatus.CREATED).body(createdTemplateVo);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
+	}
+	
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@RequestMapping(value = "/update/{id}", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.MULTIPART_FORM_DATA_VALUE })
+	@ResponseBody
+	public ResponseEntity<TemplateDto> update(@PathVariable String id, @RequestBody String updateTemplateStr,
+			@RequestParam List<MultipartFile> files) {
+
+		TemplateDto updatedVO;
+		try {
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			TemplateDto input = mapper.readValue(updateTemplateStr, TemplateDto.class);
+
+			updatedVO = service.updateTemplate(input, files);
+			return ResponseEntity.ok().body(updatedVO);
+
+		} catch (RecordNotFoundException e) {
+			return ResponseEntity.notFound().build();
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
@@ -64,24 +89,6 @@ public class TemplateController {
 			return ResponseEntity.ok().body(updateTemplateVO);
 		} catch (NumberFormatException e) {
 			return ResponseEntity.badRequest().build();
-		} catch (RecordNotFoundException e) {
-			return ResponseEntity.notFound().build();
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
-	}
-
-	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	@PutMapping("/update/{id}")
-	@ResponseBody
-	public ResponseEntity<TemplateDto> update(@PathVariable String id, @RequestBody TemplateDto updateTemplateVO) {
-
-		TemplateDto updatedVO;
-		try {
-
-			updatedVO = service.updateTemplate(updateTemplateVO);
-			return ResponseEntity.ok().body(updatedVO);
-
 		} catch (RecordNotFoundException e) {
 			return ResponseEntity.notFound().build();
 		} catch (Exception e) {

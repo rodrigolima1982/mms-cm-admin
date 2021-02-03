@@ -4,15 +4,13 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import com.mms.dto.util.DTOEntity;
-import com.mms.model.Slide;
+import com.mms.util.dto.DTOEntity;
 
 public class TemplateDto implements DTOEntity {
 
 	@NotNull
 	private Long id;
 
-	
 	@NotNull
 	private String name;
 
@@ -21,10 +19,10 @@ public class TemplateDto implements DTOEntity {
 
 	private String description;
 
-	private Set<Slide> slides;
+	private Set<SlideDTO> slides;
 
 	public TemplateDto(@NotNull Long id, @NotNull String name, @NotNull String subject, String description,
-			Set<Slide> slides) {
+			Set<SlideDTO> slides) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -32,6 +30,8 @@ public class TemplateDto implements DTOEntity {
 		this.description = description;
 		this.slides = slides;
 	}
+	
+	
 	
 
 	public TemplateDto() {
@@ -68,18 +68,16 @@ public class TemplateDto implements DTOEntity {
 		this.description = description;
 	}
 
-	public Set<Slide> getSlides() {
+	public Set<SlideDTO> getSlides() {
 		return slides;
 	}
 
-	public void setSlides(Set<Slide> slides) {
+	public void setSlides(Set<SlideDTO> slides) {
 		this.slides = slides;
 	}
 
 	public Long getId() {
 		return id;
 	}
-	
-	
 
 }

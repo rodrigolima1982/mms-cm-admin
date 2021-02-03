@@ -5,7 +5,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import com.mms.dto.util.DTOEntity;
+import com.mms.util.dto.DTOEntity;
 
 public class CreateTemplateDto implements DTOEntity {
 	

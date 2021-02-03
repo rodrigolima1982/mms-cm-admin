@@ -43,14 +43,32 @@ public class TemplateRepositoryTest {
 	public void testFindById_thenReturnTemplate() {
 		// given
 		Template template = new Template("Test Name", "Test Subject", "Test Description", null);
-		entityManager.persist(template);
-		entityManager.flush();
+		
+		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
+				"Hello, World!".getBytes());
+		SlideImage image;
+		try {
+			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
+			Slide slide = new Slide("venha para o TIM Controle", 0, image);
+			slide.setTemplate(template);
+			Set<Slide> slides = new HashSet<Slide>();
+			slides.add(slide);
+			
+			template.setSlides(slides);
+			entityManager.persist(template);
+			entityManager.flush();
 
-		// when
-		Optional<Template> found = templateRepository.findById(template.getId());
+			// when
+			Optional<Template> found = templateRepository.findByIdAndFetchSlidesEagerly(template.getId());
 
-		// then
-		assertEquals(found.get().getId(), template.getId());
+			// then
+			assertEquals(template.getId(), found.get().getId());
+			assertNotNull(found.get().getSlides());
+			assertEquals(slides.size(), found.get().getSlides().size());
+		} catch (IOException e) {
+			fail(e);
+		}
+		
 	}
 
 	@Test

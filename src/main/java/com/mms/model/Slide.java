@@ -41,7 +41,7 @@ public class Slide {
 	private int duration;
 
 	@NotBlank
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.EAGER)
 	@MapsId
 	private SlideImage image;
 

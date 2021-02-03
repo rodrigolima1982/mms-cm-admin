@@ -71,7 +71,7 @@ public class TemplateServiceTest {
 		MockitoAnnotations.initMocks(this);
 		this.template = Optional.of(new Template("Test Name", "Test Subject", "Test Description", null));
 		this.updatedTemplate = new Template("Updated Name", "Updated Subject", "Updated Description", null);
-		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", null);
+		
 
 		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
 				"Hello, World!".getBytes());
@@ -84,6 +84,7 @@ public class TemplateServiceTest {
 		this.createTemplateDto = new CreateTemplateDto("Teste Template", "Template Subject", "Template Description",
 				slides);
 		this.createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", slides);
 
 		SlideImage image = null;
 		createdTemplate.setSlides(new HashSet<Slide>());
@@ -103,7 +104,7 @@ public class TemplateServiceTest {
 
 	@Test
 	public void testGetTemplateByIdSuccess() {
-		given(repository.findById(1L)).willReturn(this.template);
+		given(repository.findByIdAndFetchSlidesEagerly(1L)).willReturn(this.template);
 
 		TemplateDto getTemplate = null;
 		try {
@@ -136,10 +137,11 @@ public class TemplateServiceTest {
 
 		TemplateDto resultVoTemplate = null;
 		try {
-			resultVoTemplate = service.updateTemplate(updateTemplateVO);
+			resultVoTemplate = service.updateTemplate(updateTemplateVO, files);
 		} catch (RecordNotFoundException e) {
-			fail();
-			e.printStackTrace();
+			fail(e);
+		} catch (IOException e) {
+			fail(e);
 		}
 
 		assertEquals("Updated Name", resultVoTemplate.getName());
@@ -151,9 +153,11 @@ public class TemplateServiceTest {
 		given(repository.findById(1L)).willReturn(Optional.ofNullable(null));
 
 		try {
-			service.updateTemplate(updateTemplateVO);
+			service.updateTemplate(updateTemplateVO, files);
 		} catch (RecordNotFoundException e) {
 			assertEquals("Template not found for the given id: 1", e.getMessage());
+		} catch (IOException e) {
+			fail(e);
 		}
 	}
 

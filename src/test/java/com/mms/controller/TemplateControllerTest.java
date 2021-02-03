@@ -111,10 +111,10 @@ public class TemplateControllerTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
 	public void testUpdateTemplateSuccess() throws Exception {
-		given(service.updateTemplate(any(TemplateDto.class))).willReturn(updateTemplateVO);
+		given(service.updateTemplate(any(TemplateDto.class), Mockito.<MultipartFile>anyList())).willReturn(updateTemplateVO);
 		
-		mockMvc.perform(MockMvcRequestBuilders.put("/api/template/update/{id}", String.valueOf(updateTemplateVO.getId())).content(asJsonString(updateTemplateVO))
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/api/template/update/{id}", String.valueOf(updateTemplateVO.getId())).file(file).content(asJsonString(updateTemplateVO))
+				.contentType(MediaType.MULTIPART_FORM_DATA).accept(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(status().isOk())
 				.andExpect(jsonPath("$.name", is(updateTemplateVO.getName())))
 				.andExpect(jsonPath("$.subject", is(updateTemplateVO.getSubject())));
@@ -123,10 +123,10 @@ public class TemplateControllerTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
 	public void testUpdateTemplateNotFound() throws Exception {
-		given(service.updateTemplate(any(TemplateDto.class))).willThrow(RecordNotFoundException.class);
+		given(service.updateTemplate(any(TemplateDto.class), Mockito.<MultipartFile>anyList())).willThrow(RecordNotFoundException.class);
 		
-		mockMvc.perform(MockMvcRequestBuilders.put("/api/template/update/{id}", "2").content(asJsonString(updateTemplateVO))
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/api/template/update/{id}", "2").file(file).content(asJsonString(updateTemplateVO))
+				.contentType(MediaType.MULTIPART_FORM_DATA).accept(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$").doesNotExist());
 	}
