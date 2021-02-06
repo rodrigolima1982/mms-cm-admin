@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,7 +54,7 @@ public class TemplateController {
 		}
 
 	}
-	
+
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE,
 			MediaType.MULTIPART_FORM_DATA_VALUE })
@@ -107,6 +108,22 @@ public class TemplateController {
 			return ResponseEntity.ok().body(response);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+
+	}
+
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@DeleteMapping("/disable/{id}")
+	public ResponseEntity<Long> disableTemplate(@PathVariable String id) {
+
+		try {
+
+			service.disable(Long.parseLong(id));
+			
+			return ResponseEntity.ok(Long.parseLong(id));
+
+		} catch (NumberFormatException | RecordNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 	}

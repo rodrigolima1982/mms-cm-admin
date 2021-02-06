@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,6 +36,7 @@ import com.mms.dto.SlideDTO;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.DuplicatedRecordNameException;
 import com.mms.exception.RecordNotFoundException;
+import com.mms.model.EStatus;
 import com.mms.model.Slide;
 import com.mms.model.SlideImage;
 import com.mms.model.Template;
@@ -62,7 +64,7 @@ public class TemplateServiceTest {
 	private Slide createdSlide;
 
 	private SlideDTO slideDTO;
-	
+
 	private List<MultipartFile> files = new ArrayList<MultipartFile>();
 
 	@BeforeEach
@@ -71,7 +73,6 @@ public class TemplateServiceTest {
 		MockitoAnnotations.initMocks(this);
 		this.template = Optional.of(new Template("Test Name", "Test Subject", "Test Description", null));
 		this.updatedTemplate = new Template("Updated Name", "Updated Subject", "Updated Description", null);
-		
 
 		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
 				"Hello, World!".getBytes());
@@ -178,7 +179,8 @@ public class TemplateServiceTest {
 
 		Page<Template> list = new PageImpl<Template>(templateList);
 
-		given(repository.findByNameContaining(any(String.class), any(Pageable.class))).willReturn(list);
+		given(repository.findByNameContainingAndStatus(any(String.class), eq(EStatus.ENABLED), any(Pageable.class)))
+				.willReturn(list);
 
 		Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
 
@@ -187,7 +189,8 @@ public class TemplateServiceTest {
 
 		assertEquals(templateDtoList.size(), templateList.size());
 		assertEquals((long) response.get("totalItems"), 3);
-		verify(repository, times(1)).findByNameContaining(any(String.class), any(Pageable.class));
+		verify(repository, times(1)).findByNameContainingAndStatus(any(String.class), eq(EStatus.ENABLED),
+				any(Pageable.class));
 
 	}
 
@@ -208,7 +211,7 @@ public class TemplateServiceTest {
 
 		Page<Template> list = new PageImpl<Template>(templateList);
 
-		given(repository.findAll(any(Pageable.class))).willReturn(list);
+		given(repository.findByStatus(eq(EStatus.ENABLED), any(Pageable.class))).willReturn(list);
 
 		Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
 
@@ -218,7 +221,7 @@ public class TemplateServiceTest {
 		assertEquals(templateDtoList.size(), templateList.size());
 		assertEquals((long) response.get("totalItems"), 3);
 
-		verify(repository, times(1)).findAll(any(Pageable.class));
+		verify(repository, times(1)).findByStatus(eq(EStatus.ENABLED), any(Pageable.class));
 
 	}
 
@@ -232,7 +235,7 @@ public class TemplateServiceTest {
 
 		Page<Template> list = new PageImpl<Template>(templateList);
 
-		given(repository.findAll(any(Pageable.class))).willReturn(list);
+		given(repository.findByStatus(eq(EStatus.ENABLED), any(Pageable.class))).willReturn(list);
 
 		Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
 
@@ -242,7 +245,7 @@ public class TemplateServiceTest {
 		assertEquals(templateDtoList.size(), templateList.size());
 		assertEquals((long) response.get("totalItems"), 0);
 
-		verify(repository, times(1)).findAll(any(Pageable.class));
+		verify(repository, times(1)).findByStatus(eq(EStatus.ENABLED), any(Pageable.class));
 
 	}
 
@@ -264,7 +267,7 @@ public class TemplateServiceTest {
 		assertEquals(this.createTemplateDto.getName(), templateDto.getName());
 
 	}
-	
+
 	@Test
 	public void testCreateTemplateWithSameName() {
 
@@ -273,11 +276,22 @@ public class TemplateServiceTest {
 		try {
 			service.createTemplate(this.createTemplateDto, files);
 		} catch (DuplicatedRecordNameException e) {
-			assertTrue(e.getMessage().equals("There is another Template with the same name, please choose another name"));
+			assertTrue(
+					e.getMessage().equals("There is another Template with the same name, please choose another name"));
 		} catch (IOException e) {
 			fail(e);
 		}
 
+	}
+	
+	@Test
+	public void testDeleteTemplate() {
+		fail();
+	}
+	
+	@Test
+	public void testDisableTemplate() {
+		fail();
 	}
 
 }

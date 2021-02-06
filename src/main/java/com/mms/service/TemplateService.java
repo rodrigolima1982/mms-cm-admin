@@ -22,6 +22,7 @@ import com.mms.dto.CreateTemplateDto;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.DuplicatedRecordNameException;
 import com.mms.exception.RecordNotFoundException;
+import com.mms.model.EStatus;
 import com.mms.model.Slide;
 import com.mms.model.SlideImage;
 import com.mms.model.Template;
@@ -146,9 +147,9 @@ public class TemplateService {
 		List<TemplateDto> templateListVo = new ArrayList<TemplateDto>();
 
 		if (name != null && !name.isEmpty()) {
-			templatePages = repository.findByNameContaining(name, paging);
+			templatePages = repository.findByNameContainingAndStatus(name, EStatus.ENABLED, paging);
 		} else {
-			templatePages = repository.findAll(paging);
+			templatePages = repository.findByStatus(EStatus.ENABLED, paging);
 		}
 
 		if (templatePages != null && !templatePages.isEmpty()) {
@@ -166,6 +167,29 @@ public class TemplateService {
 		response.put("totalPages", templatePages.getTotalPages());
 
 		return response;
+	}
+	
+	
+	public boolean disable(Long id) throws RecordNotFoundException {
+
+		Optional<Template> template = repository.findById(id);
+
+		if (!template.isPresent()) {
+			throw new RecordNotFoundException("Template not found for the given id: " + id);
+		}else {
+			if(template.get().getCampaigns().isEmpty()) {
+				
+				repository.deleteById(id);
+				
+			}else {
+				
+				template.get().setStatus(EStatus.DISABLED);
+				repository.save(template.get());
+			}
+		}
+		
+		return true;
+		
 	}
 
 }

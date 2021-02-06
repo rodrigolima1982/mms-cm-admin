@@ -1,6 +1,7 @@
 package com.mms.repository;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.mms.model.EStatus;
 import com.mms.model.Slide;
 import com.mms.model.SlideImage;
 import com.mms.model.Template;
@@ -79,7 +81,7 @@ public class TemplateRepositoryTest {
 		entityManager.flush();
 
 		// when
-		Optional<Template> found = templateRepository.findById(template.getId() + 1);
+		Optional<Template> found = templateRepository.findByIdAndFetchSlidesEagerly(template.getId() + 1);
 
 		// then
 		assertFalse(found.isPresent());
@@ -99,7 +101,7 @@ public class TemplateRepositoryTest {
 		Pageable paging = PageRequest.of(0, 10);
 
 		// when
-		Page<Template> page = templateRepository.findAll(paging);
+		Page<Template> page = templateRepository.findByStatus(EStatus.ENABLED, paging);
 
 		// then
 		assertEquals(10, page.getContent().size());
@@ -122,7 +124,7 @@ public class TemplateRepositoryTest {
 		Pageable paging = PageRequest.of(1, 10);
 
 		// when
-		Page<Template> page = templateRepository.findAll(paging);
+		Page<Template> page = templateRepository.findByStatus(EStatus.ENABLED,paging);
 
 		// then
 		assertEquals(10, page.getContent().size());
@@ -145,7 +147,7 @@ public class TemplateRepositoryTest {
 		Pageable paging = PageRequest.of(0, 10);
 
 		// when
-		Page<Template> page = templateRepository.findByNameContaining("Test Name -", paging);
+		Page<Template> page = templateRepository.findByNameContainingAndStatus("Test Name -", EStatus.ENABLED, paging);
 
 		// then
 		assertEquals(10, page.getContent().size());
@@ -168,7 +170,7 @@ public class TemplateRepositoryTest {
 		Pageable paging = PageRequest.of(0, 10);
 
 		// when
-		Page<Template> page = templateRepository.findByNameContaining("Invalid Name", paging);
+		Page<Template> page = templateRepository.findByNameContainingAndStatus("Invalid Name", EStatus.ENABLED, paging);
 
 		// then
 		assertEquals(0, page.getContent().size());
@@ -220,6 +222,34 @@ public class TemplateRepositoryTest {
 
 		} catch (Throwable e) {
 			assertTrue(e instanceof PersistenceException);
+		}
+		
+	}
+	
+	@Test
+	public void testDeleteTemplate_thenReturnSuccess() {
+		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
+				"Hello, World!".getBytes());
+		SlideImage image;
+		try {
+			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
+			Slide slide = new Slide("venha para o TIM Controle", 0, image);
+			Set<Slide> slides = new HashSet<Slide>();
+			slides.add(slide);
+			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", slides);
+			
+			createdTemplate = entityManager.persist(createdTemplate);
+			entityManager.flush();
+			
+			templateRepository.deleteById(createdTemplate.getId());
+			entityManager.flush();
+			
+			Template found = entityManager.find(Template.class, createdTemplate.getId());
+			
+			assertNull(found);
+
+		} catch (Throwable e) {
+			fail(e);
 		}
 		
 	}

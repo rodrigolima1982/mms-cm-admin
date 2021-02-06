@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -16,8 +17,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-
-import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "template", uniqueConstraints = { @UniqueConstraint(columnNames = "name") })
@@ -57,8 +56,8 @@ public class Template {
 	private Set<Campaign> campaigns;
 	
 	@Enumerated(EnumType.STRING)
-	@Type(type = "com.mms.util.database.EnumTypePostgreSql")
-	private EStatus status;
+	@Column(columnDefinition = "varchar(10) default 'ENABLED'")
+	private EStatus status = EStatus.ENABLED;
 
 	public String getName() {
 		return name;
