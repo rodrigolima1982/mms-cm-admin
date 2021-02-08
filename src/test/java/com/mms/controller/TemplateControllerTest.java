@@ -1,20 +1,11 @@
 package com.mms.controller;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.mms.dto.SlideDto;
+import com.mms.dto.TemplateDto;
+import com.mms.exception.RecordNotFoundException;
+import com.mms.service.TemplateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,13 +26,15 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.mms.dto.CreateTemplateDto;
-import com.mms.dto.SlideDTO;
-import com.mms.dto.TemplateDto;
-import com.mms.exception.RecordNotFoundException;
-import com.mms.service.TemplateService;
+import java.util.*;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = TemplateController.class)
 @ActiveProfiles("test")
@@ -57,14 +50,14 @@ public class TemplateControllerTest {
 
 	private TemplateDto updateTemplateVO;
 
-	private CreateTemplateDto createTemplateVO;
+	private TemplateDto createTemplateVO;
 
 	@InjectMocks
 	private TemplateController templateController;
 
 	MockMultipartFile file;
 
-	private SlideDTO slideDTO;
+	private SlideDto slideDto;
 
 	@BeforeEach
 	void setUp() {
@@ -75,11 +68,11 @@ public class TemplateControllerTest {
 
 		this.file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
 
-		this.slideDTO = new SlideDTO("Venha para o TIM Controle", 30, null);
-		Set<SlideDTO> slides = new HashSet<SlideDTO>();
-		slides.add(slideDTO);
+		this.slideDto = new SlideDto("Venha para o TIM Controle", 30, null);
+		Set<SlideDto> slides = new HashSet<SlideDto>();
+		slides.add(slideDto);
 
-		this.createTemplateVO = new CreateTemplateDto("Created Name", "Created Subject", "Created Description", slides);
+		this.createTemplateVO = new TemplateDto(null, "Created Name", "Created Subject", "Created Description", slides);
 
 		this.mockMvc = MockMvcBuilders.standaloneSetup(templateController).build();
 
@@ -99,7 +92,7 @@ public class TemplateControllerTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
 	public void testCreateTemplateSuccess() throws Exception {
-		given(service.createTemplate(any(CreateTemplateDto.class), Mockito.<MultipartFile>anyList()))
+		given(service.createTemplate(any(TemplateDto.class), Mockito.<MultipartFile>anyList()))
 				.willReturn(this.createTemplateVO);
 		mockMvc.perform(MockMvcRequestBuilders.multipart("/api/template/create").file(file)
 				.content(asJsonString(createTemplateVO)).contentType(MediaType.MULTIPART_FORM_DATA)

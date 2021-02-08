@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mms.dto.SlideDTO;
+import com.mms.dto.SlideDto;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -19,7 +19,7 @@ public class SlideController {
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@GetMapping("/get/bytemplate")
 	@ResponseBody
-	public ResponseEntity<SlideDTO> getTemplateById(@RequestParam String templateId) {
+	public ResponseEntity<SlideDto> getTemplateById(@RequestParam String templateId) {
 
 		
 		return null;

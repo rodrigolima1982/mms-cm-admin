@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mms.util.dto.DTOEntity;
 
-public class SlideDTO implements DTOEntity {
+public class SlideDto implements DTOEntity {
 	
 	@NotBlank
 	@Size(max = 160)
@@ -18,12 +18,12 @@ public class SlideDTO implements DTOEntity {
 
 	@NotBlank
 	private MultipartFile image;
-	
-	public SlideDTO() {
+
+	public SlideDto() {
 		super();
 	}
 
-	public SlideDTO(@NotBlank @Size(max = 160) String text, @NotBlank int duration, @NotBlank MultipartFile image) {
+	public SlideDto(@NotBlank @Size(max = 160) String text, @NotBlank int duration, @NotBlank MultipartFile image) {
 		super();
 		this.text = text;
 		this.duration = duration;
@@ -53,7 +53,7 @@ public class SlideDTO implements DTOEntity {
 	public void setImage(MultipartFile image) {
 		this.image = image;
 	}
-	
-	
+
+
 
 }

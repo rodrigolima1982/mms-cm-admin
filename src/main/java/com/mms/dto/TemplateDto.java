@@ -19,10 +19,10 @@ public class TemplateDto implements DTOEntity {
 
 	private String description;
 
-	private Set<SlideDTO> slides;
+	private Set<SlideDto> slides;
 
 	public TemplateDto(@NotNull Long id, @NotNull String name, @NotNull String subject, String description,
-			Set<SlideDTO> slides) {
+			Set<SlideDto> slides) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -68,11 +68,11 @@ public class TemplateDto implements DTOEntity {
 		this.description = description;
 	}
 
-	public Set<SlideDTO> getSlides() {
+	public Set<SlideDto> getSlides() {
 		return slides;
 	}
 
-	public void setSlides(Set<SlideDTO> slides) {
+	public void setSlides(Set<SlideDto> slides) {
 		this.slides = slides;
 	}
 

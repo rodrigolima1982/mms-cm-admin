@@ -1,22 +1,14 @@
 package com.mms.service;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
+import com.mms.dto.SlideDto;
+import com.mms.dto.TemplateDto;
+import com.mms.exception.DuplicatedRecordNameException;
+import com.mms.exception.RecordNotFoundException;
+import com.mms.model.EStatus;
+import com.mms.model.Slide;
+import com.mms.model.SlideImage;
+import com.mms.model.Template;
+import com.mms.repository.TemplateRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -31,16 +23,17 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mms.dto.CreateTemplateDto;
-import com.mms.dto.SlideDTO;
-import com.mms.dto.TemplateDto;
-import com.mms.exception.DuplicatedRecordNameException;
-import com.mms.exception.RecordNotFoundException;
-import com.mms.model.EStatus;
-import com.mms.model.Slide;
-import com.mms.model.SlideImage;
-import com.mms.model.Template;
-import com.mms.repository.TemplateRepository;
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TemplateServiceTest {
@@ -53,7 +46,7 @@ public class TemplateServiceTest {
 
 	private Optional<Template> template;
 
-	private CreateTemplateDto createTemplateDto;
+	private TemplateDto createTemplateDto;
 
 	private TemplateDto updateTemplateVO;
 
@@ -63,7 +56,7 @@ public class TemplateServiceTest {
 
 	private Slide createdSlide;
 
-	private SlideDTO slideDTO;
+	private SlideDto slideDto;
 
 	private List<MultipartFile> files = new ArrayList<MultipartFile>();
 
@@ -78,11 +71,11 @@ public class TemplateServiceTest {
 				"Hello, World!".getBytes());
 		files.add(file);
 
-		this.slideDTO = new SlideDTO("Venha para o TIM Controle", 30, file);
-		Set<SlideDTO> slides = new HashSet<SlideDTO>();
-		slides.add(slideDTO);
+		this.slideDto = new SlideDto("Venha para o TIM Controle", 30, file);
+		Set<SlideDto> slides = new HashSet<SlideDto>();
+		slides.add(slideDto);
 
-		this.createTemplateDto = new CreateTemplateDto("Teste Template", "Template Subject", "Template Description",
+		this.createTemplateDto = new TemplateDto(null, "Teste Template", "Template Subject", "Template Description",
 				slides);
 		this.createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
 		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", slides);
@@ -90,11 +83,11 @@ public class TemplateServiceTest {
 		SlideImage image = null;
 		createdTemplate.setSlides(new HashSet<Slide>());
 
-		for (SlideDTO slideDTO : createTemplateDto.getSlides()) {
+		for (SlideDto slideDto : createTemplateDto.getSlides()) {
 			try {
-				image = new SlideImage(slideDTO.getImage().getContentType(), slideDTO.getImage().getOriginalFilename(),
-						slideDTO.getImage().getBytes());
-				createdSlide = new Slide(slideDTO.getText(), slideDTO.getDuration(), image);
+				image = new SlideImage(slideDto.getImage().getContentType(), slideDto.getImage().getOriginalFilename(),
+						slideDto.getImage().getBytes());
+				createdSlide = new Slide(slideDto.getText(), slideDto.getDuration(), image);
 				createdTemplate.getSlides().add(createdSlide);
 			} catch (IOException e) {
 				fail(e);
@@ -254,7 +247,7 @@ public class TemplateServiceTest {
 
 		given(repository.save(any(Template.class))).willReturn(this.createdTemplate);
 
-		CreateTemplateDto templateDto = null;
+		TemplateDto templateDto = null;
 
 		try {
 			templateDto = service.createTemplate(this.createTemplateDto, files);
