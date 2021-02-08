@@ -40,20 +40,13 @@ public class TemplateService {
 
     public TemplateDto createTemplate(TemplateDto templateDto, List<MultipartFile> slideFiles)
             throws DuplicatedRecordNameException, IOException {
-
         if (repository.findByName(templateDto.getName()) != null) {
-
             throw new DuplicatedRecordNameException(
                     "There is another Template with the same name, please choose another name");
-
         } else {
-
             Template newTemplate = (Template) new DtoUtils().convertToEntity(new Template(), templateDto);
-
             int index = 0;
-
             Set<Slide> newSlide = new HashSet<Slide>();
-
             for (Slide slide : newTemplate.getSlides()) {
                 slide.setImage(new SlideImage(slideFiles.get(index).getContentType(),
                         slideFiles.get(index).getOriginalFilename(), slideFiles.get(index).getBytes()));
@@ -61,10 +54,8 @@ public class TemplateService {
                 newSlide.add(slide);
                 index++;
             }
-
             newTemplate.setSlides(newSlide);
             newTemplate = repository.save(newTemplate);
-
             return (TemplateDto) new DtoUtils().convertToDto(newTemplate, templateDto);
         }
     }
@@ -109,7 +100,7 @@ public class TemplateService {
         return (TemplateDto) new DtoUtils().convertToDto(template.get(), new TemplateDto());
     }
 
-    public Map<String, Object> getTemplateListPaginated(int page, int size, String name) {
+    public List<TemplateDto> getTemplateListPaginated(int page, int size, String name) {
         Pageable paging = PageRequest.of(page, size);
 
         Page<Template> templatePages;
@@ -129,13 +120,13 @@ public class TemplateService {
                     .collect(Collectors.toList());
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("templates", templateListVo);
-        response.put("currentPage", templatePages.getNumber());
-        response.put("totalItems", templatePages.getTotalElements());
-        response.put("totalPages", templatePages.getTotalPages());
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("templates", templateListVo);
+//        response.put("currentPage", templatePages.getNumber());
+//        response.put("totalItems", templatePages.getTotalElements());
+//        response.put("totalPages", templatePages.getTotalPages());
 
-        return response;
+        return templateListVo;
     }
 
 

@@ -13,7 +13,7 @@ import com.mms.dto.SlideDto;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/slide")
+@RequestMapping("/api/mms-sender/slide")
 public class SlideController {
 	
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")

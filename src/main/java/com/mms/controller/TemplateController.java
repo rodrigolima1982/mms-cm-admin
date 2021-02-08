@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -35,9 +34,7 @@ public class TemplateController {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             TemplateDto input = mapper.readValue(body, TemplateDto.class);
             TemplateDto createdTemplateVo = service.createTemplate(input, files);
-//            return new ResponseEntity<>(mapper.writeValueAsString(createdTemplateVo), HttpStatus.CREATED);
-//            return new ResponseEntity<>(createdTemplateVo, HttpStatus.CREATED);
-			return ResponseEntity.status(HttpStatus.CREATED).body(createdTemplateVo);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdTemplateVo);
         } catch (Exception e) {
             logger.error("Could not create entitie ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -46,22 +43,14 @@ public class TemplateController {
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE,
-            MediaType.MULTIPART_FORM_DATA_VALUE})
-    @ResponseBody
-    public ResponseEntity<TemplateDto> update(@PathVariable String id, @RequestBody String updateTemplateStr,
-                                              @RequestParam List<MultipartFile> files) {
-
+    @PostMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<TemplateDto> update(@PathVariable String id, @RequestParam String body, @RequestParam List<MultipartFile> files) {
         TemplateDto updatedVO;
         try {
-
             ObjectMapper mapper = new ObjectMapper();
-
-            TemplateDto input = mapper.readValue(updateTemplateStr, TemplateDto.class);
-
+            TemplateDto input = mapper.readValue(body, TemplateDto.class);
             updatedVO = service.updateTemplate(input, files);
             return ResponseEntity.ok().body(updatedVO);
-
         } catch (RecordNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -70,7 +59,7 @@ public class TemplateController {
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<TemplateDto> getTemplateById(@PathVariable String id) {
 
@@ -88,13 +77,11 @@ public class TemplateController {
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping("/getAll")
-    public ResponseEntity<Map<String, Object>> getAllTemplates(@RequestParam(required = false) String name,
+    @GetMapping()
+    public ResponseEntity<List<TemplateDto>> getAllTemplates(@RequestParam(required = false) String name,
                                                                @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-
         try {
-            Map<String, Object> response = service.getTemplateListPaginated(page, size, name);
-
+            List<TemplateDto> response = service.getTemplateListPaginated(page, size, name);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -103,19 +90,14 @@ public class TemplateController {
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @DeleteMapping("/disable/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Long> disableTemplate(@PathVariable String id) {
-
         try {
-
             service.disable(Long.parseLong(id));
-
             return ResponseEntity.ok(Long.parseLong(id));
-
         } catch (NumberFormatException | RecordNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
     }
 
 }

@@ -20,7 +20,7 @@ import com.mms.service.CampaignService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/campaign")
+@RequestMapping("/api/mms-sender/campaign")
 public class CampaignController {
 
 	@Autowired
