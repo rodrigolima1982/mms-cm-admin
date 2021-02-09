@@ -7,8 +7,10 @@ import javax.annotation.ManagedBean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.mms.dto.CampaignDto;
 import com.mms.model.Campaign;
 import com.mms.repository.CampaignRepository;
+import com.mms.util.dto.DtoUtils;
 
 @ManagedBean
 public class CampaignService {
@@ -21,7 +23,9 @@ public class CampaignService {
 	 * @param campaign
 	 * @return
 	 */
-	public Campaign create(Campaign campaign) {
+	public Campaign create(CampaignDto campaignDto) {
+		
+		Campaign campaign = (Campaign) new DtoUtils().convertToEntity(new Campaign(), campaignDto);
 		
 		return campaignRepository.save(campaign);
 	}

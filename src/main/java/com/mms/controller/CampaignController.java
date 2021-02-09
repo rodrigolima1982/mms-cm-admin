@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.mms.dto.CampaignDto;
 import com.mms.model.Campaign;
 import com.mms.service.CampaignService;
 
@@ -27,11 +30,11 @@ public class CampaignController {
 	private CampaignService campaignService;
 
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	@ResponseBody
-	public Campaign create(@RequestBody Campaign campaign) {
+	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+	public Campaign create(@RequestBody CampaignDto campaignDto) {
 		try {
-			return campaignService.create(campaign);
+			return campaignService.create(campaignDto);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error Creating the Campaign", e);
 		}
