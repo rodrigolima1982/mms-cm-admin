@@ -2,6 +2,8 @@ package com.mms.dto;
 
 import java.util.Set;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import com.mms.util.dto.DTOEntity;
@@ -19,6 +21,8 @@ public class TemplateDto implements DTOEntity {
 
 	private String description;
 
+	@Valid
+	@NotEmpty
 	private Set<SlideDto> slides;
 
 	public TemplateDto(@NotNull Long id, @NotNull String name, @NotNull String subject, String description,

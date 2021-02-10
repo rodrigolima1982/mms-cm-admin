@@ -185,11 +185,14 @@ public class TemplateRepositoryTest {
 				"Hello, World!".getBytes());
 		SlideImage image;
 		try {
+			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+			
 			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
 			Slide slide = new Slide("venha para o TIM Controle", 0, image);
 			Set<Slide> slides = new HashSet<Slide>();
+			slide.setTemplate(createdTemplate);
 			slides.add(slide);
-			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", slides);
+			createdTemplate.setSlides(slides);
 
 			Template newTemplate =  entityManager.persist(createdTemplate);
 			entityManager.flush();
@@ -208,13 +211,24 @@ public class TemplateRepositoryTest {
 				"Hello, World!".getBytes());
 		SlideImage image;
 		try {
+			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+			
 			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
 			Slide slide = new Slide("venha para o TIM Controle", 0, image);
+			slide.setTemplate(createdTemplate);
 			Set<Slide> slides = new HashSet<Slide>();
 			slides.add(slide);
-			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", slides);
-			Template createdTemplateDuplicated = new Template("Teste Template", "Template Subject", "Template Description", slides);
-
+			createdTemplate.setSlides(slides);
+			
+			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
+			Template createdTemplateDuplicated = new Template("Teste Template", "Template Subject", "Template Description", null);
+			Slide slideDuplicated = new Slide("venha para o TIM Controle", 0, image);
+			slideDuplicated.setTemplate(createdTemplateDuplicated);
+			Set<Slide> slidesDuplicated = new HashSet<Slide>();
+			slidesDuplicated.add(slideDuplicated);
+			createdTemplateDuplicated.setSlides(slidesDuplicated);
+			
+			
 			entityManager.persist(createdTemplate);
 			entityManager.flush();
 			entityManager.persist(createdTemplateDuplicated);

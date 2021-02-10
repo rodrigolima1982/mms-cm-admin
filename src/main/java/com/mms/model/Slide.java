@@ -37,10 +37,9 @@ public class Slide {
 	@Size(max = 160)
 	private String text;
 
-	@NotBlank
 	private int duration;
 
-	@NotBlank
+	@NotNull
 	@OneToOne(fetch = FetchType.EAGER)
 	@MapsId
 	private SlideImage image;

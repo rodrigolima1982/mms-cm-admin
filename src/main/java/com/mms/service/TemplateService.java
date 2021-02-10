@@ -8,12 +8,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.ManagedBean;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mms.dto.TemplateDto;
@@ -26,7 +28,8 @@ import com.mms.model.Template;
 import com.mms.repository.TemplateRepository;
 import com.mms.util.dto.DtoUtils;
 
-@ManagedBean
+@Service
+@Validated
 public class TemplateService {
 
     @Autowired
@@ -36,7 +39,7 @@ public class TemplateService {
         this.repository = repository;
     }
 
-    public TemplateDto createTemplate(TemplateDto templateDto, List<MultipartFile> slideFiles)
+    public TemplateDto createTemplate(@Valid TemplateDto templateDto, List<MultipartFile> slideFiles)
             throws DuplicatedRecordNameException, IOException {
         if (repository.findByName(templateDto.getName()) != null) {
             throw new DuplicatedRecordNameException(
