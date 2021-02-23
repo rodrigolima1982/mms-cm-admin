@@ -1,17 +1,14 @@
 package com.mms.dto;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 import com.mms.util.dto.DTOEntity;
 
-public class TemplateDto implements DTOEntity {
-
-	@NotNull
-	private Long id;
-
+public class CreateTemplateDto implements DTOEntity {
+	
 	@NotEmpty
 	private String name;
 
@@ -21,29 +18,19 @@ public class TemplateDto implements DTOEntity {
 	private String description;
 
 	@NotEmpty
-	private Set<SlideDto> slides;
+	private Set<SlideDto> slidesDTO = new HashSet<SlideDto>();
 
 
-	public TemplateDto(@NotNull Long id, @NotEmpty String name, @NotEmpty String subject, String description, Set<SlideDto> slideDtos) {
+	public CreateTemplateDto(@NotEmpty String name, @NotEmpty String subject, String description, @NotEmpty Set<SlideDto> slides) {
 		super();
-		this.id = id;
 		this.name = name;
 		this.subject = subject;
 		this.description = description;
-		this.slides = slideDtos;
-		
+		this.slidesDTO = slides;
 	}
 
-
-
-	public TemplateDto() {
+	public CreateTemplateDto() {
 		super();
-	}
-
-
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getName() {
@@ -71,15 +58,11 @@ public class TemplateDto implements DTOEntity {
 	}
 
 	public Set<SlideDto> getSlides() {
-		return slides;
+		return slidesDTO;
 	}
 
 	public void setSlides(Set<SlideDto> slides) {
-		this.slides = slides;
-	}
-
-	public Long getId() {
-		return id;
+		this.slidesDTO = slides;
 	}
 
 }

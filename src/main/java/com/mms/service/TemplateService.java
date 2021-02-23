@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mms.dto.CreateTemplateDto;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.DuplicatedRecordNameException;
 import com.mms.exception.RecordNotFoundException;
@@ -39,13 +40,13 @@ public class TemplateService {
         this.repository = repository;
     }
 
-    public TemplateDto createTemplate(@Valid TemplateDto templateDto, List<MultipartFile> slideFiles)
+    public TemplateDto createTemplate(@Valid CreateTemplateDto createTemplateDto, List<MultipartFile> slideFiles)
             throws DuplicatedRecordNameException, IOException {
-        if (repository.findByName(templateDto.getName()) != null) {
+        if (repository.findByName(createTemplateDto.getName()) != null) {
             throw new DuplicatedRecordNameException(
                     "There is another Template with the same name, please choose another name");
         } else {
-            Template newTemplate = (Template) new DtoUtils().convertToEntity(new Template(), templateDto);
+            Template newTemplate = (Template) new DtoUtils().convertToEntity(new Template(), createTemplateDto);
             int index = 0;
             Set<Slide> newSlide = new HashSet<Slide>();
             for (Slide slide : newTemplate.getSlides()) {
@@ -57,11 +58,11 @@ public class TemplateService {
             }
             newTemplate.setSlides(newSlide);
             newTemplate = repository.save(newTemplate);
-            return (TemplateDto) new DtoUtils().convertToDto(newTemplate, templateDto);
+            return (TemplateDto) new DtoUtils().convertToDto(newTemplate, new TemplateDto());
         }
     }
 
-    public TemplateDto updateTemplate(TemplateDto templateDTO, List<MultipartFile> slideFiles) throws RecordNotFoundException, IOException {
+    public TemplateDto updateTemplate(@Valid TemplateDto templateDTO, List<MultipartFile> slideFiles) throws RecordNotFoundException, IOException {
 
         Optional<Template> existing = repository.findById(templateDTO.getId());
 

@@ -3,6 +3,8 @@ package com.mms.controller;
 import java.util.Date;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +34,7 @@ public class CampaignController {
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-	public Campaign create(@RequestBody CampaignDto campaignDto) {
+	public CampaignDto create(@Valid @RequestBody CampaignDto campaignDto) {
 		try {
 			return campaignService.create(campaignDto);
 		} catch (Exception e) {

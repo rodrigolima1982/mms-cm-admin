@@ -246,11 +246,14 @@ public class TemplateRepositoryTest {
 				"Hello, World!".getBytes());
 		SlideImage image;
 		try {
+			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
 			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
 			Slide slide = new Slide("venha para o TIM Controle", 0, image);
+			slide.setTemplate(createdTemplate);
 			Set<Slide> slides = new HashSet<Slide>();
 			slides.add(slide);
-			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", slides);
+			createdTemplate.setSlides(slides);
+			
 			
 			createdTemplate = entityManager.persist(createdTemplate);
 			entityManager.flush();

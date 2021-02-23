@@ -31,6 +31,14 @@ public class Operator {
 	@OneToMany(mappedBy="operator") 
 	private Set<Campaign> campaigns;
 
+	public Operator(Long id, @NotBlank String name, @NotBlank String country, Set<Campaign> campaigns) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.country = country;
+		this.campaigns = campaigns;
+	}
+
 	public String getName() {
 		return name;
 	}

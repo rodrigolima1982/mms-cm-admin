@@ -4,17 +4,17 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "campaign")
@@ -24,53 +24,53 @@ public class Campaign {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	@NotBlank
-	@Size(max = 20)
+	@Column(nullable = false, length = 20)
 	private String name;
 
-	@NotBlank
+	@Column(nullable = false)
 	private int senderShortNumber;
 
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean isEnableDLR;
 
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean isEnabledReadReceipt;
 
 	private LocalDate startDate;
 
 	private LocalDate endDate;
 
+	private int numberOfUsers;
+
 	@ManyToMany(cascade = { CascadeType.ALL })
 	@JoinTable(name = "campaign_client", joinColumns = { @JoinColumn(name = "campaign_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "client_id") })
 	private Set<Client> clients;
 
-	@ManyToOne
+	@ManyToOne(cascade = { CascadeType.ALL })
+	@NotNull
 	private Template template;
-	
-	@ManyToOne
+
+	@ManyToOne(cascade = { CascadeType.ALL })
+	@NotNull
 	private Operator operator;
 
 	public Campaign() {
 		super();
 	}
-	
 
-	public Campaign(@NotBlank @Size(max = 20) String name, @NotBlank int senderShortNumber, boolean isEnableDLR,
-			boolean isEnabledReadReceipt, LocalDate startDate, LocalDate endDate, Set<Client> clients,
-			Template template, Operator operator) {
+	public Campaign(Long id, String name, int senderShortNumber, boolean isEnableDLR, boolean isEnabledReadReceipt,
+			LocalDate startDate, LocalDate endDate, int numberOfUsers) {
 		super();
+		this.id = id;
 		this.name = name;
 		this.senderShortNumber = senderShortNumber;
 		this.isEnableDLR = isEnableDLR;
 		this.isEnabledReadReceipt = isEnabledReadReceipt;
 		this.startDate = startDate;
 		this.endDate = endDate;
-		this.clients = clients;
-		this.template = template;
-		this.operator = operator;
+		this.numberOfUsers = numberOfUsers;
 	}
-
-
 
 	public Long getId() {
 		return id;
@@ -151,5 +151,13 @@ public class Campaign {
 	public void setOperator(Operator operator) {
 		this.operator = operator;
 	}
-	
+
+	public int getNumberOfUsers() {
+		return numberOfUsers;
+	}
+
+	public void setNumberOfUsers(int numberOfUsers) {
+		this.numberOfUsers = numberOfUsers;
+	}
+
 }

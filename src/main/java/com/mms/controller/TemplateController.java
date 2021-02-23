@@ -2,6 +2,7 @@ package com.mms.controller;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mms.dto.CreateTemplateDto;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.RecordNotFoundException;
 import com.mms.service.TemplateService;
@@ -37,7 +38,7 @@ public class TemplateController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            TemplateDto input = mapper.readValue(body, TemplateDto.class);
+            CreateTemplateDto input = mapper.readValue(body, CreateTemplateDto.class);
             TemplateDto createdTemplateVo = service.createTemplate(input, files);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdTemplateVo);
         } catch (Exception e) {

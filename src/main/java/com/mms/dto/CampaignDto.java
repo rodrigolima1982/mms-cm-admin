@@ -6,8 +6,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.modelmapper.internal.bytebuddy.implementation.bind.annotation.IgnoreForBinding;
+import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mms.util.dto.DTOEntity;
 
+@Validated
 public class CampaignDto implements DTOEntity {
 
 	@NotBlank
@@ -17,6 +22,7 @@ public class CampaignDto implements DTOEntity {
 	@NotBlank
 	private int senderShortNumber;
 
+	
 	private boolean isEnableDLR;
 
 	private boolean isEnabledReadReceipt;
@@ -33,6 +39,7 @@ public class CampaignDto implements DTOEntity {
 	private Long templateId;
 	
 	@NotNull
+	@JsonIgnore
 	private Long operatorId;
 	
 	public CampaignDto() {
@@ -119,6 +126,7 @@ public class CampaignDto implements DTOEntity {
 		this.numberOfUsers = numberOfUsers;
 	}
 
+	@IgnoreForBinding
 	public Long getTemplateId() {
 		return templateId;
 	}
@@ -127,6 +135,7 @@ public class CampaignDto implements DTOEntity {
 		this.templateId = templateId;
 	}
 
+	@IgnoreForBinding
 	public Long getOperatorId() {
 		return operatorId;
 	}
