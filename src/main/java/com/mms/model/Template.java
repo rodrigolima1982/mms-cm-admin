@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -48,6 +49,9 @@ public class Template {
 	private String subject;
 
 	private String description;
+	
+	@ManyToOne
+	private Operator operator;
 
 	@OneToMany(mappedBy = "template", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Slide> slides = new HashSet<Slide>();

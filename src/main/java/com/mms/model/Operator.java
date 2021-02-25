@@ -30,13 +30,15 @@ public class Operator {
 	
 	@OneToMany(mappedBy="operator") 
 	private Set<Campaign> campaigns;
+	
+	@OneToMany(mappedBy="operator") 
+	private Set<Template> templates;
 
-	public Operator(Long id, @NotBlank String name, @NotBlank String country, Set<Campaign> campaigns) {
+	public Operator(Long id, @NotBlank String name, @NotBlank String country) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.country = country;
-		this.campaigns = campaigns;
 	}
 
 	public String getName() {

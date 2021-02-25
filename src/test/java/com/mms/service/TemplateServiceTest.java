@@ -98,7 +98,7 @@ public class TemplateServiceTest {
 		Set<SlideDto> slidesDto =  new HashSet<SlideDto>();
 		slidesDto.add(slideDto);
 		
-		this.createTemplateDto = new CreateTemplateDto("Teste Template", "Template Subject", "Template Description", slidesDto);
+		this.createTemplateDto = new CreateTemplateDto("Teste Template", "Template Subject", "Template Description", 1L, slidesDto);
 		this.updateTemplateVO = new TemplateDto(1L, "Updated Name", "Updated Subject", "Updated Description", slidesDto);
 		
 
