@@ -23,24 +23,23 @@ public class TemplateDto implements DTOEntity {
 	@NotEmpty
 	private Set<SlideDto> slides;
 
+	@NotNull
+	private Long operatorId;
 
-	public TemplateDto(@NotNull Long id, @NotEmpty String name, @NotEmpty String subject, String description, Set<SlideDto> slideDtos) {
+	public TemplateDto(@NotNull Long id, @NotEmpty String name, @NotEmpty String subject, String description,
+			Set<SlideDto> slideDtos) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.subject = subject;
 		this.description = description;
 		this.slides = slideDtos;
-		
+
 	}
-
-
 
 	public TemplateDto() {
 		super();
 	}
-
-
 
 	public void setId(Long id) {
 		this.id = id;

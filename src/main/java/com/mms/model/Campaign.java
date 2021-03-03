@@ -47,11 +47,11 @@ public class Campaign {
 			@JoinColumn(name = "client_id") })
 	private Set<Client> clients;
 
-	@ManyToOne(cascade = { CascadeType.ALL })
+	@ManyToOne
 	@NotNull
 	private Template template;
 
-	@ManyToOne(cascade = { CascadeType.ALL })
+	@ManyToOne
 	@NotNull
 	private Operator operator;
 

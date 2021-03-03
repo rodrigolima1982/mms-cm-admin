@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import com.mms.util.dto.DTOEntity;
 
 public class CreateTemplateDto implements DTOEntity {
-	
+
 	@NotEmpty
 	private String name;
 
@@ -17,15 +17,15 @@ public class CreateTemplateDto implements DTOEntity {
 	private String subject;
 
 	private String description;
-	
+
 	@NotNull
 	private Long operatorId;
 
 	@NotEmpty
 	private Set<SlideDto> slidesDTO = new HashSet<SlideDto>();
 
-
-	public CreateTemplateDto(@NotEmpty String name, @NotEmpty String subject, String description, Long operatorId, @NotEmpty Set<SlideDto> slides) {
+	public CreateTemplateDto(@NotEmpty String name, @NotEmpty String subject, String description, Long operatorId,
+			@NotEmpty Set<SlideDto> slides) {
 		super();
 		this.name = name;
 		this.subject = subject;
@@ -68,6 +68,14 @@ public class CreateTemplateDto implements DTOEntity {
 
 	public void setSlides(Set<SlideDto> slides) {
 		this.slidesDTO = slides;
+	}
+
+	public Long getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(Long operatorId) {
+		this.operatorId = operatorId;
 	}
 
 }

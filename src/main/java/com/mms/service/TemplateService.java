@@ -23,9 +23,11 @@ import com.mms.dto.TemplateDto;
 import com.mms.exception.DuplicatedRecordNameException;
 import com.mms.exception.RecordNotFoundException;
 import com.mms.model.EStatus;
+import com.mms.model.Operator;
 import com.mms.model.Slide;
 import com.mms.model.SlideImage;
 import com.mms.model.Template;
+import com.mms.repository.OperatorRepository;
 import com.mms.repository.TemplateRepository;
 import com.mms.util.dto.DtoUtils;
 
@@ -33,94 +35,114 @@ import com.mms.util.dto.DtoUtils;
 @Validated
 public class TemplateService {
 
-    @Autowired
-    private TemplateRepository repository;
+	@Autowired
+	private TemplateRepository repository;
 
-    public void setRepository(TemplateRepository repository) {
-        this.repository = repository;
-    }
+	private OperatorRepository operatorRepository;
 
-    public TemplateDto createTemplate(@Valid CreateTemplateDto createTemplateDto, List<MultipartFile> slideFiles)
-            throws DuplicatedRecordNameException, IOException {
-        if (repository.findByName(createTemplateDto.getName()) != null) {
-            throw new DuplicatedRecordNameException(
-                    "There is another Template with the same name, please choose another name");
-        } else {
-            Template newTemplate = (Template) new DtoUtils().convertToEntity(new Template(), createTemplateDto);
-            int index = 0;
-            Set<Slide> newSlide = new HashSet<Slide>();
-            for (Slide slide : newTemplate.getSlides()) {
-                slide.setImage(new SlideImage(slideFiles.get(index).getContentType(),
-                        slideFiles.get(index).getOriginalFilename(), slideFiles.get(index).getBytes()));
-                slide.setTemplate(newTemplate);
-                newSlide.add(slide);
-                index++;
-            }
-            newTemplate.setSlides(newSlide);
-            newTemplate = repository.save(newTemplate);
-            return (TemplateDto) new DtoUtils().convertToDto(newTemplate, new TemplateDto());
-        }
-    }
+	public void setRepository(TemplateRepository repository) {
+		this.repository = repository;
+	}
 
-    public TemplateDto updateTemplate(@Valid TemplateDto templateDTO, List<MultipartFile> slideFiles) throws RecordNotFoundException, IOException {
+	public TemplateDto createTemplate(@Valid CreateTemplateDto createTemplateDto, List<MultipartFile> slideFiles)
+			throws DuplicatedRecordNameException, IOException, RecordNotFoundException {
+		if (repository.findByName(createTemplateDto.getName()) != null) {
+			throw new DuplicatedRecordNameException(
+					"There is another Template with the same name, please choose another name");
+		} else {
+			Template newTemplate = (Template) new DtoUtils().convertToEntity(new Template(), createTemplateDto);
+			newTemplate.setOperator(getOperator(createTemplateDto.getOperatorId()));
+			Set<Slide> newSlide = getSlides(slideFiles, newTemplate);
+			newTemplate.setSlides(newSlide);
+			newTemplate = repository.save(newTemplate);
+			return (TemplateDto) new DtoUtils().convertToDto(newTemplate, new TemplateDto());
+		}
+	}
 
-        Optional<Template> existing = repository.findById(templateDTO.getId());
+	private Set<Slide> getSlides(List<MultipartFile> slideFiles, Template newTemplate) throws IOException {
+		int index = 0;
+		Set<Slide> newSlide = new HashSet<Slide>();
+		for (Slide slide : newTemplate.getSlides()) {
+			slide.setImage(new SlideImage(slideFiles.get(index).getContentType(),
+					slideFiles.get(index).getOriginalFilename(), slideFiles.get(index).getBytes()));
+			slide.setTemplate(newTemplate);
+			newSlide.add(slide);
+			index++;
+		}
+		return newSlide;
+	}
 
-        if (existing.isPresent()) {
-            Template updatedTemplate = (Template) new DtoUtils().convertToEntity(new Template(), templateDTO);
+	private Operator getOperator(Long operatorId) throws RecordNotFoundException {
+		Operator operator = operatorRepository.getOne(operatorId);
 
-            int index = 0;
+		if (operator != null) {
+			return operator;
+		} else {
+			throw new RecordNotFoundException("Operator Not Found");
+		}
 
-            Set<Slide> newSlide = new HashSet<Slide>();
+	}
 
-            for (Slide slide : updatedTemplate.getSlides()) {
-                slide.setImage(new SlideImage(slideFiles.get(index).getContentType(),
-                        slideFiles.get(index).getOriginalFilename(), slideFiles.get(index).getBytes()));
-                slide.setTemplate(updatedTemplate);
-                newSlide.add(slide);
-                index++;
-            }
+	public TemplateDto updateTemplate(@Valid TemplateDto templateDTO, List<MultipartFile> slideFiles)
+			throws RecordNotFoundException, IOException {
 
-            updatedTemplate.setSlides(newSlide);
-            updatedTemplate = repository.save(updatedTemplate);
+		Optional<Template> existing = repository.findById(templateDTO.getId());
 
-            return (TemplateDto) new DtoUtils().convertToDto(updatedTemplate, new TemplateDto());
-        } else {
-            throw new RecordNotFoundException("Template not found for the given id: " + templateDTO.getId());
-        }
+		if (existing.isPresent()) {
+			Template updatedTemplate = (Template) new DtoUtils().convertToEntity(new Template(), templateDTO);
 
-    }
+			int index = 0;
 
-    public TemplateDto get(Long id) throws RecordNotFoundException {
+			Set<Slide> newSlide = new HashSet<Slide>();
 
-        Optional<Template> template = repository.findByIdAndFetchSlidesEagerly(id);
+			for (Slide slide : updatedTemplate.getSlides()) {
+				slide.setImage(new SlideImage(slideFiles.get(index).getContentType(),
+						slideFiles.get(index).getOriginalFilename(), slideFiles.get(index).getBytes()));
+				slide.setTemplate(updatedTemplate);
+				newSlide.add(slide);
+				index++;
+			}
 
-        if (!template.isPresent()) {
-            throw new RecordNotFoundException("Template not found for the given id: " + id);
-        }
+			updatedTemplate.setSlides(newSlide);
+			updatedTemplate = repository.save(updatedTemplate);
 
-        return (TemplateDto) new DtoUtils().convertToDto(template.get(), new TemplateDto());
-    }
+			return (TemplateDto) new DtoUtils().convertToDto(updatedTemplate, new TemplateDto());
+		} else {
+			throw new RecordNotFoundException("Template not found for the given id: " + templateDTO.getId());
+		}
 
-    public List<TemplateDto> getTemplateListPaginated(int page, int size, String name) {
-        Pageable paging = PageRequest.of(page, size);
+	}
 
-        Page<Template> templatePages;
-        List<TemplateDto> templateListVo = new ArrayList<TemplateDto>();
+	public TemplateDto get(Long id) throws RecordNotFoundException {
 
-        if (name != null && !name.isEmpty()) {
-            templatePages = repository.findByNameContainingAndStatus(name, EStatus.ENABLED, paging);
-        } else {
-            templatePages = repository.findByStatus(EStatus.ENABLED, paging);
-        }
+		Optional<Template> template = repository.findByIdAndFetchSlidesEagerly(id);
 
-        if (templatePages != null && !templatePages.isEmpty()) {
-            List<Template> templateList = templatePages.getContent();
+		if (!template.isPresent()) {
+			throw new RecordNotFoundException("Template not found for the given id: " + id);
+		}
 
-            templateListVo = templateList.stream()
-                    .map(template -> (TemplateDto) new DtoUtils().convertToDto(template, new TemplateDto()))
-                    .collect(Collectors.toList());
-        }
+		return (TemplateDto) new DtoUtils().convertToDto(template.get(), new TemplateDto());
+	}
+
+	public List<TemplateDto> getTemplateListPaginated(int page, int size, String name) {
+		Pageable paging = PageRequest.of(page, size);
+
+		Page<Template> templatePages;
+		List<TemplateDto> templateListVo = new ArrayList<TemplateDto>();
+
+		if (name != null && !name.isEmpty()) {
+			templatePages = repository.findByNameContainingAndStatus(name, EStatus.ENABLED, paging);
+		} else {
+			templatePages = repository.findByStatus(EStatus.ENABLED, paging);
+		}
+
+		if (templatePages != null && !templatePages.isEmpty()) {
+			List<Template> templateList = templatePages.getContent();
+
+			templateListVo = templateList.stream()
+					.map(template -> (TemplateDto) new DtoUtils().convertToDto(template, new TemplateDto()))
+					.collect(Collectors.toList());
+		}
 
 //        Map<String, Object> response = new HashMap<>();
 //        response.put("templates", templateListVo);
@@ -128,30 +150,29 @@ public class TemplateService {
 //        response.put("totalItems", templatePages.getTotalElements());
 //        response.put("totalPages", templatePages.getTotalPages());
 
-        return templateListVo;
-    }
+		return templateListVo;
+	}
 
+	public boolean disable(Long id) throws RecordNotFoundException {
 
-    public boolean disable(Long id) throws RecordNotFoundException {
+		Optional<Template> template = repository.findById(id);
 
-        Optional<Template> template = repository.findById(id);
+		if (!template.isPresent()) {
+			throw new RecordNotFoundException("Template not found for the given id: " + id);
+		} else {
+			if (template.get().getCampaigns().isEmpty()) {
 
-        if (!template.isPresent()) {
-            throw new RecordNotFoundException("Template not found for the given id: " + id);
-        } else {
-            if (template.get().getCampaigns().isEmpty()) {
+				repository.deleteById(id);
 
-                repository.deleteById(id);
+			} else {
 
-            } else {
+				template.get().setStatus(EStatus.DISABLED);
+				repository.save(template.get());
+			}
+		}
 
-                template.get().setStatus(EStatus.DISABLED);
-                repository.save(template.get());
-            }
-        }
+		return true;
 
-        return true;
-
-    }
+	}
 
 }

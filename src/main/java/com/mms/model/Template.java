@@ -91,6 +91,14 @@ public class Template {
 		return slides;
 	}
 
+	public Operator getOperator() {
+		return operator;
+	}
+
+	public void setOperator(Operator operator) {
+		this.operator = operator;
+	}
+
 	public void setSlides(Set<Slide> slides) {
 		this.slides = slides;
 	}

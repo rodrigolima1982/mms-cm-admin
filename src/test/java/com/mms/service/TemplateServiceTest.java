@@ -36,9 +36,11 @@ import com.mms.dto.TemplateDto;
 import com.mms.exception.DuplicatedRecordNameException;
 import com.mms.exception.RecordNotFoundException;
 import com.mms.model.EStatus;
+import com.mms.model.Operator;
 import com.mms.model.Slide;
 import com.mms.model.SlideImage;
 import com.mms.model.Template;
+import com.mms.repository.OperatorRepository;
 import com.mms.repository.TemplateRepository;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,6 +51,9 @@ public class TemplateServiceTest {
 
 	@Mock
 	private TemplateRepository repository;
+	
+	@Mock
+	private OperatorRepository operatorRepository;
 
 	private Optional<Template> template;
 
@@ -249,6 +254,7 @@ public class TemplateServiceTest {
 	public void testCreateTemplate() {
 
 		given(repository.save(any(Template.class))).willReturn(this.createdTemplate);
+		given(operatorRepository.getOne(any(Long.class))).willReturn(new Operator(1L, "TIM", "Brazil"));
 
 		TemplateDto templateDto = null;
 
@@ -257,6 +263,8 @@ public class TemplateServiceTest {
 		} catch (DuplicatedRecordNameException e) {
 			fail(e);
 		} catch (IOException e) {
+			fail(e);
+		} catch (RecordNotFoundException e) {
 			fail(e);
 		}
 
@@ -275,6 +283,8 @@ public class TemplateServiceTest {
 			assertTrue(
 					e.getMessage().equals("There is another Template with the same name, please choose another name"));
 		} catch (IOException e) {
+			fail(e);
+		} catch (RecordNotFoundException e) {
 			fail(e);
 		}
 
