@@ -24,7 +24,7 @@ public class MailMessageService {
         String contextPath = getAppUrl(event.getRequest());
         String recipientAddress = user.getEmail();
         String subject = "Register Confirmation";
-        String confirmationUrl = contextPath + "registerConfirm?token=" + token;
+        String confirmationUrl = contextPath + "/registerConfirm?token=" + token;
         String message = messages.getMessage("message.regSuccLink", null, "You registered successfully. To confirm your registration, please click on the below link.", event.getRequest().getLocale());
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(recipientAddress);
@@ -36,14 +36,14 @@ public class MailMessageService {
 
     public SimpleMailMessage constructResendVerificationTokenEmail(HttpServletRequest request, VerificationToken newToken, User user) {
         String contextPath = getAppUrl(request);
-        String confirmationUrl = contextPath + "registerConfirm?token=" + newToken.getToken();
+        String confirmationUrl = contextPath + "/registerConfirm?token=" + newToken.getToken();
         String message = messages.getMessage("message.resendToken", null, request.getLocale());
         return constructEmail("Resend Registration Token", message + " \r\n" + confirmationUrl, user);
     }
 
     public SimpleMailMessage constructResetTokenEmail(HttpServletRequest request, String token, User user) {
         String contextPath = getAppUrl(request);
-        String url = contextPath + "user/changePassword?token=" + token;
+        String url = contextPath + "/changePassword?token=" + token;
         String message = messages.getMessage("message.resetPassword", null, request.getLocale());
         return constructEmail("Reset Password", message + " \r\n" + url, user);
     }
