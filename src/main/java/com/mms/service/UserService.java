@@ -37,48 +37,50 @@ public class UserService {
     @Autowired
     private SessionRegistry sessionRegistry;
 
-    public static final String TOKEN_INVALID = "invalidToken";
-    public static final String TOKEN_EXPIRED = "expired";
-    public static final String TOKEN_VALID = "valid";
+    public static  String TOKEN_INVALID = "invalidToken";
+    public static  String TOKEN_EXPIRED = "expired";
+    public static  String TOKEN_VALID = "valid";
 
-    public User getUser(final String verificationToken) {
-        final VerificationToken token = tokenRepository.findByToken(verificationToken);
+    public Optional<User> getUser( String verificationToken) {
+         VerificationToken token = tokenRepository.findByToken(verificationToken);
         if (token != null) {
-            return token.getUser();
+            return Optional.ofNullable(token.getUser());
+//            return token.getUser();
         }
         return null;
     }
 
-    public VerificationToken getVerificationToken(final String VerificationToken) {
+    public VerificationToken getVerificationToken( String VerificationToken) {
         return tokenRepository.findByToken(VerificationToken);
     }
 
-    public void saveRegisteredUser(final User user) {
+    public void saveRegisteredUser(User user) {
         userRepository.save(user);
     }
 
-    public void deleteUser(final User user) {
-        final VerificationToken verificationToken = tokenRepository.findByUser(user);
-
+    public void deleteUserTokens(User user) {
+        VerificationToken verificationToken = tokenRepository.findByUser(user);
         if (verificationToken != null) {
             tokenRepository.delete(verificationToken);
         }
-
-        final PasswordResetToken passwordToken = passwordTokenRepository.findByUser(user);
+        PasswordResetToken passwordToken = passwordTokenRepository.findByUser(user);
 
         if (passwordToken != null) {
             passwordTokenRepository.delete(passwordToken);
         }
+    }
 
+    public void deleteUser(User user) {
+        this.deleteUserTokens(user);
         userRepository.delete(user);
     }
 
-    public void createVerificationTokenForUser(final User user, final String token) {
-        final VerificationToken myToken = new VerificationToken(token, user);
+    public void createVerificationTokenForUser( User user,  String token) {
+         VerificationToken myToken = new VerificationToken(token, user);
         tokenRepository.save(myToken);
     }
 
-    public VerificationToken generateNewVerificationToken(final String existingVerificationToken) {
+    public VerificationToken generateNewVerificationToken( String existingVerificationToken) {
         VerificationToken verificationToken = tokenRepository.findByToken(existingVerificationToken);
         verificationToken.updateToken(UUID.randomUUID()
                 .toString());
@@ -86,44 +88,44 @@ public class UserService {
         return verificationToken;
     }
 
-    public void createPasswordResetTokenForUser(final User user, final String token) {
-        final PasswordResetToken myToken = new PasswordResetToken(token, user);
+    public void createPasswordResetTokenForUser( User user,  String token) {
+         PasswordResetToken myToken = new PasswordResetToken(token, user);
         passwordTokenRepository.save(myToken);
     }
 
-    public User findUserByEmail(final String email) {
+    public User findUserByEmail( String email) {
         return userRepository.findByEmail(email);
     }
 
-    public PasswordResetToken getPasswordResetToken(final String token) {
+    public PasswordResetToken getPasswordResetToken( String token) {
         return passwordTokenRepository.findByToken(token);
     }
 
-    public Optional<User> getUserByPasswordResetToken(final String token) {
+    public Optional<User> getUserByPasswordResetToken( String token) {
         return Optional.ofNullable(passwordTokenRepository.findByToken(token).getUser());
     }
 
-    public Optional<User> getUserByID(final long id) {
+    public Optional<User> getUserByID( long id) {
         return userRepository.findById(id);
     }
 
-    public void changeUserPassword(final User user, final String password) {
+    public void changeUserPassword( User user,  String password) {
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
     }
 
-    public boolean checkIfValidOldPassword(final User user, final String oldPassword) {
+    public boolean checkIfValidOldPassword( User user,  String oldPassword) {
         return passwordEncoder.matches(oldPassword, user.getPassword());
     }
 
     public String validateVerificationToken(String token) {
-        final VerificationToken verificationToken = tokenRepository.findByToken(token);
+         VerificationToken verificationToken = tokenRepository.findByToken(token);
         if (verificationToken == null) {
             return TOKEN_INVALID;
         }
 
-        final User user = verificationToken.getUser();
-        final Calendar cal = Calendar.getInstance();
+         User user = verificationToken.getUser();
+         Calendar cal = Calendar.getInstance();
         if ((verificationToken.getExpiryDate()
                 .getTime() - cal.getTime()
                 .getTime()) <= 0) {
@@ -137,7 +139,7 @@ public class UserService {
         return TOKEN_VALID;
     }
 
-    private boolean emailExists(final String email) {
+    private boolean emailExists( String email) {
         return userRepository.findByEmail(email) != null;
     }
 

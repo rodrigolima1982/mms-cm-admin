@@ -1,6 +1,7 @@
 package com.mms.controller;
 
 import com.mms.dto.PasswordDto;
+import com.mms.dto.SignUpConfirmDto;
 import com.mms.exception.InvalidOldPasswordException;
 import com.mms.model.ERole;
 import com.mms.model.Role;
@@ -8,9 +9,9 @@ import com.mms.model.User;
 import com.mms.model.VerificationToken;
 import com.mms.repository.RoleRepository;
 import com.mms.repository.UserRepository;
-import com.mms.security.payload.request.SignupRequest;
+import com.mms.dto.SignUpDto;
 import com.mms.security.payload.response.MessageResponse;
-import com.mms.security.registration.OnRegistrationCompleteEvent;
+import com.mms.events.OnRegisterCompleteEvent;
 import com.mms.service.MailMessageService;
 import com.mms.service.PasswordResetTokenService;
 import com.mms.service.UserService;
@@ -64,25 +65,25 @@ public class UserController {
 
     // TODO: passar lógica para o UserService
     @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(@Valid @RequestBody SignupRequest signUpRequest, HttpServletRequest request) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpDto signUpDto, HttpServletRequest request) {
+        if (userRepository.existsByUsername(signUpDto.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (userRepository.existsByEmail(signUpDto.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
 
         // Create new user's account
-        User user = new User(signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
+        User user = new User(signUpDto.getUsername(),
+                signUpDto.getEmail(),
+                encoder.encode(signUpDto.getPassword()));
 
-        Set<String> strRoles = signUpRequest.getRole();
+        Set<String> strRoles = signUpDto.getRole();
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
@@ -115,19 +116,39 @@ public class UserController {
         user.setRoles(roles);
         User registeredUser = userRepository.save(user);
 
-        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(registeredUser, request.getLocale()));
+        eventPublisher.publishEvent(new OnRegisterCompleteEvent(registeredUser, request));
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    @GetMapping("/resendRegistrationToken")
-    public ResponseEntity<?> resendRegistrationToken(HttpServletRequest request, @RequestParam("token") String existingToken) {
+    @PostMapping("/signUpConfirm")
+    public ResponseEntity<?> signUpConfirm(@Valid @RequestBody SignUpConfirmDto signUpConfirmDto) {
+        String result = userService.validateVerificationToken(signUpConfirmDto.getToken());
+        if (result.equals("valid")) {
+            if (!signUpConfirmDto.getPassword().equals(signUpConfirmDto.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid confirmation password!"));
+            }
+            Optional<User> user = userService.getUser(signUpConfirmDto.getToken());
+            if (user.isPresent()) {
+                User u = user.get();
+                u.setEnabled(true);
+                u.setPassword(encoder.encode(signUpConfirmDto.getPassword()));
+                this.userService.saveRegisteredUser(u);
+                this.userService.deleteUserTokens(u);
+                return ResponseEntity.ok(new MessageResponse("User confirmed!"));
+            }
+        }
+        return ResponseEntity.badRequest().body(new MessageResponse("Error: invalid token!"));
+    }
+
+        @GetMapping("/resendRegisterToken")
+    public ResponseEntity<?> resendRegisterToken(HttpServletRequest request, @RequestParam("token") String existingToken) {
         VerificationToken newToken = userService.generateNewVerificationToken(existingToken);
-        User user = userService.getUser(newToken.getToken());
-        mailSender.send(mailMessageService.constructResendVerificationTokenEmail(request, request.getLocale(), newToken, user));
+        Optional<User> user = userService.getUser(newToken.getToken());
+        mailSender.send(mailMessageService.constructResendVerificationTokenEmail(request, newToken, user.get()));
         // TODO: i18n
-//        return ResponseEntity.ok(messages.getMessage("message.resendRegistrationToken", null, request.getLocale()));
-        return ResponseEntity.ok(new MessageResponse("User resendRegistrationToken successfully!"));
+//        return ResponseEntity.ok(messages.getMessage("message.resendRegisterToken", null, request.getLocale()));
+        return ResponseEntity.ok(new MessageResponse("User resendRegisterToken successfully!"));
     }
 
     @PostMapping("/resetPassword")
@@ -136,7 +157,7 @@ public class UserController {
         if (user != null) {
             String token = UUID.randomUUID().toString();
             userService.createPasswordResetTokenForUser(user, token);
-            mailSender.send(mailMessageService.constructResetTokenEmail(request, request.getLocale(), token, user));
+            mailSender.send(mailMessageService.constructResetTokenEmail(request, token, user));
         }
         return ResponseEntity.ok(new MessageResponse("User resetPassword successfully!"));
     }

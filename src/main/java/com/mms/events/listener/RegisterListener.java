@@ -1,7 +1,7 @@
-package com.mms.security.registration.listener;
+package com.mms.events.listener;
 
+import com.mms.events.OnRegisterCompleteEvent;
 import com.mms.model.User;
-import com.mms.security.registration.OnRegistrationCompleteEvent;
 import com.mms.service.MailMessageService;
 import com.mms.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
+public class RegisterListener implements ApplicationListener<OnRegisterCompleteEvent> {
     @Autowired
     private UserService service;
 
@@ -28,11 +28,11 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
     private JavaMailSender mailSender;
 
     @Override
-    public void onApplicationEvent(final OnRegistrationCompleteEvent event) {
-        this.confirmRegistration(event);
+    public void onApplicationEvent(final OnRegisterCompleteEvent event) {
+        this.confirmRegister(event);
     }
 
-    private void confirmRegistration(final OnRegistrationCompleteEvent event) {
+    private void confirmRegister(final OnRegisterCompleteEvent event) {
         final User user = event.getUser();
         final String token = UUID.randomUUID().toString();
         service.createVerificationTokenForUser(user, token);

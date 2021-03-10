@@ -1,9 +1,9 @@
-package com.mms.security.payload.request;
+package com.mms.dto;
 import java.util.Set;
 
 import javax.validation.constraints.*;
  
-public class SignupRequest {
+public class SignUpDto {
     @NotBlank
     @Size(min = 3, max = 20)
     private String username;
@@ -15,9 +15,8 @@ public class SignupRequest {
     
     private Set<String> role;
     
-    @NotBlank
     @Size(min = 6, max = 40)
-    private String password;
+    private String password = "rW5Y`F[`eyL;jLnC";
   
     public String getUsername() {
         return username;

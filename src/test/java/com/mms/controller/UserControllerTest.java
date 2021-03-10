@@ -1,6 +1,6 @@
 package com.mms.controller;
 
-import com.mms.security.payload.request.SignupRequest;
+import com.mms.dto.SignUpDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,7 +17,7 @@ public class UserControllerTest {
     @InjectMocks
     UserController userController;
 
-    private SignupRequest signUpRequest;
+    private SignUpDto signUpRequest;
 
     @BeforeEach
     void setUp() {
@@ -30,7 +30,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void resendRegistrationTokenTest() throws Exception {
+    void resendRegisterTokenTest() throws Exception {
     }
 
     @Test

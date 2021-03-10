@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/mms-sender")
+@RequestMapping("/api/user/homepage")
 public class MmsSenderController {
 
     @GetMapping("/all")
@@ -22,7 +22,7 @@ public class MmsSenderController {
         return "User Content.";
     }
 
-    @GetMapping("/mod")
+    @GetMapping("/moderator")
     @PreAuthorize("hasRole('MODERATOR')")
     public String moderatorAccess() {
         return "Moderator Board.";
