@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mms.dto.BasicCampaignDto;
 import com.mms.dto.CampaignDto;
+import com.mms.dto.Pagination;
 import com.mms.exception.RecordNotFoundException;
 import com.mms.model.Campaign;
 import com.mms.service.CampaignService;
@@ -84,4 +86,18 @@ public class CampaignController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 	}
+	
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @GetMapping()
+    public ResponseEntity<Pagination<Campaign>> getCampaigns(@RequestParam(required = false) String name,
+                                                               @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        try {
+            Pagination<Campaign> response = campaignService.getCampaignListPaginated(page, size, name);
+        	
+        	return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+    }
 }

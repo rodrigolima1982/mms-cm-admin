@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,11 +43,11 @@ public class Campaign {
 			@JoinColumn(name = "client_id") })
 	private Set<Client> clients;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@NotNull
 	private Template template;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@NotNull
 	private Operator operator;
 
