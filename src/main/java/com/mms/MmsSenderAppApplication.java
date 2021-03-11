@@ -7,10 +7,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableAsync
 public class MmsSenderAppApplication {
-
-	
-	public static void main(String[] args) {
-		SpringApplication.run(MmsSenderAppApplication.class, args);
-	}	
-	
+    public static void main(String[] args) {
+        SpringApplication.run(MmsSenderAppApplication.class, args);
+    }
 }
