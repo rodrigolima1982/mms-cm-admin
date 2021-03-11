@@ -38,11 +38,8 @@ public class TemplateService {
 	@Autowired
 	private TemplateRepository repository;
 
+	@Autowired
 	private OperatorRepository operatorRepository;
-
-	public void setRepository(TemplateRepository repository) {
-		this.repository = repository;
-	}
 
 	public TemplateDto createTemplate(@Valid CreateTemplateDto createTemplateDto, List<MultipartFile> slideFiles)
 			throws DuplicatedRecordNameException, IOException, RecordNotFoundException {

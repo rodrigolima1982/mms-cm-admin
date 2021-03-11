@@ -1,6 +1,5 @@
 package com.mms.model;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -36,10 +35,6 @@ public class Campaign {
 	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean isEnabledReadReceipt;
 
-	private LocalDate startDate;
-
-	private LocalDate endDate;
-
 	private int numberOfUsers;
 
 	@ManyToMany(cascade = { CascadeType.ALL })
@@ -59,16 +54,13 @@ public class Campaign {
 		super();
 	}
 
-	public Campaign(Long id, String name, int senderShortNumber, boolean isEnableDLR, boolean isEnabledReadReceipt,
-			LocalDate startDate, LocalDate endDate, int numberOfUsers) {
+	public Campaign(Long id, String name, int senderShortNumber, boolean isEnableDLR, boolean isEnabledReadReceipt, int numberOfUsers) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.senderShortNumber = senderShortNumber;
 		this.isEnableDLR = isEnableDLR;
 		this.isEnabledReadReceipt = isEnabledReadReceipt;
-		this.startDate = startDate;
-		this.endDate = endDate;
 		this.numberOfUsers = numberOfUsers;
 	}
 
@@ -110,22 +102,6 @@ public class Campaign {
 
 	public void setEnabledReadReceipt(boolean isEnabledReadReceipt) {
 		this.isEnabledReadReceipt = isEnabledReadReceipt;
-	}
-
-	public LocalDate getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(LocalDate startDate) {
-		this.startDate = startDate;
-	}
-
-	public LocalDate getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(LocalDate endDate) {
-		this.endDate = endDate;
 	}
 
 	public Set<Client> getClients() {

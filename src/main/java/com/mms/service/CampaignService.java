@@ -1,18 +1,19 @@
 package com.mms.service;
 
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.ManagedBean;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 
+import com.mms.dto.BasicCampaignDto;
 import com.mms.dto.CampaignDto;
+import com.mms.exception.RecordNotFoundException;
 import com.mms.model.Campaign;
 import com.mms.model.Operator;
 import com.mms.model.Template;
@@ -35,48 +36,101 @@ public class CampaignService {
 	private OperatorRepository operatorRepository;
 
 	/**
-	 * Create a new campaign in the database.
-	 * 
-	 * @param campaign
+	 * Create a new campaign.
+	 * @param basicCampaignDto
 	 * @return
+	 * @throws ConstraintViolationException
+	 * @throws RecordNotFoundException
 	 */
-	public CampaignDto create(@Valid CampaignDto campaignDto) throws ConstraintViolationException {
+	public BasicCampaignDto create(@Valid BasicCampaignDto basicCampaignDto) throws ConstraintViolationException, RecordNotFoundException {
 
-		PropertyMap<CampaignDto, Campaign> skipModifiedFieldsMap = new PropertyMap<CampaignDto, Campaign>() {
+		PropertyMap<BasicCampaignDto, Campaign> skipModifiedFieldsMap = new PropertyMap<BasicCampaignDto, Campaign>() {
 			protected void configure() {
 				skip().setId(null);
 			}
 		};
 
-		Campaign campaign = (Campaign) new DtoUtils().convertToCampaignEntity(new Campaign(), campaignDto,
+		Campaign campaign = (Campaign) new DtoUtils().convertToCampaignEntity(new Campaign(), basicCampaignDto,
 				skipModifiedFieldsMap);
 
-		Optional<Template> template = templateRepository.findById(campaignDto.getTemplateId());
+		Campaign createdCampaign = saveCampaign(basicCampaignDto, campaign);
 
-		if (template.isPresent()) {
-			campaign.setTemplate(template.get());
+		return (BasicCampaignDto) new DtoUtils().convertToDto(createdCampaign,
+				new BasicCampaignDto());
+
+	}
+	
+	/**
+	 * Update an existing campaign.
+	 * @param campaignDto
+	 * @return
+	 * @throws RecordNotFoundException
+	 */
+	public CampaignDto update(@Valid CampaignDto campaignDto) throws RecordNotFoundException {
+
+		Optional<Campaign> existing = campaignRepository.findById(campaignDto.getId());
+
+		if (existing.isPresent()) {
+			Campaign upatedCampaign = (Campaign) new DtoUtils().convertToEntity(new Campaign(), campaignDto);
+			
+			upatedCampaign = saveCampaign(campaignDto, upatedCampaign);
+			return (CampaignDto) new DtoUtils().convertToDto(upatedCampaign, new CampaignDto());
+		}else {
+			throw new RecordNotFoundException("Campaign not found for the given id: " + campaignDto.getId());
 		}
-
-		Optional<Operator> operator = operatorRepository.findById(campaignDto.getOperatorId());
-
-		if (operator.isPresent()) {
-			campaign.setOperator(operator.get());
-		}
-
-		return (CampaignDto) new DtoUtils().convertToDto(campaignRepository.save(campaign), new CampaignDto());
-
 	}
 
 	/**
-	 * List campaign by startDate by date range.
-	 * 
-	 * @param campaignTimeStart
-	 * @param campaignTimeEnd
+	 * Generic method to save a campaign.
+	 * @param basicCampaignDto
+	 * @param campaign
 	 * @return
+	 * @throws RecordNotFoundException
 	 */
-	public List<Campaign> listCampaignByDateRange(Date campaignTimeStart, Date campaignTimeEnd) {
+	private Campaign saveCampaign(BasicCampaignDto basicCampaignDto, Campaign campaign) throws RecordNotFoundException {
+		Optional<Template> template = templateRepository.findById(basicCampaignDto.getTemplateId());
 
-		return campaignRepository.findAllByStartDateBetween(campaignTimeStart, campaignTimeEnd);
+		if (template.isPresent()) {
+			campaign.setTemplate(template.get());
+		}else {
+			throw new RecordNotFoundException("Template not found for the given id: " + basicCampaignDto.getTemplateId());
+		}
+
+		Optional<Operator> operator = operatorRepository.findById(basicCampaignDto.getOperatorId());
+
+		if (operator.isPresent()) {
+			campaign.setOperator(operator.get());
+		}else {
+			throw new RecordNotFoundException("Operator not found for the given id: " + basicCampaignDto.getOperatorId());
+		}
+		
+		Campaign createdCampaign = campaignRepository.save(campaign);
+		return createdCampaign;
+	}
+
+
+	/**
+	 * Get Campaign by ID and return also Template and Operator fields;
+	 * @param id
+	 * @return
+	 * @throws RecordNotFoundException
+	 */
+	public Optional<Campaign> get(@NotNull Long id) throws RecordNotFoundException {
+
+		Optional<Campaign> campaign = campaignRepository.findByIdAndFetchTemplateAndOperatorEagerly(id);
+
+		if (campaign.isPresent()) {
+			return campaign;
+		}else {
+			throw new RecordNotFoundException("Campaign not found for the given id: " + id);
+		}
+
+		
+	}
+	
+	public boolean disable(@NotNull Long id) throws RecordNotFoundException {
+
+		return true;
 
 	}
 }

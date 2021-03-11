@@ -1,25 +1,28 @@
 package com.mms.controller;
 
-import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.mms.dto.BasicCampaignDto;
 import com.mms.dto.CampaignDto;
+import com.mms.exception.RecordNotFoundException;
 import com.mms.model.Campaign;
 import com.mms.service.CampaignService;
 
@@ -34,24 +37,51 @@ public class CampaignController {
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-	public CampaignDto create(@Valid @RequestBody CampaignDto campaignDto) {
+	public BasicCampaignDto create(@Valid @RequestBody BasicCampaignDto basicCampaignDto) {
 		try {
-			return campaignService.create(campaignDto);
+			return campaignService.create(basicCampaignDto);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error Creating the Campaign", e);
 		}
 
 	}
+	
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@PostMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+	public CampaignDto update(@Valid @RequestBody CampaignDto campaignDto) {
+		try {
+			return campaignService.update(campaignDto);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error Updating the Campaign", e);
+		}
+
+	}
+	
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Long> disableTemplate(@PathVariable String id) {
+        try {
+            campaignService.disable(Long.parseLong(id));
+            return ResponseEntity.ok(Long.parseLong(id));
+        } catch (NumberFormatException | RecordNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-	@RequestMapping(value = "/list/{startDate}/{endDate}", method = RequestMethod.GET)
-	public List<Campaign> listByDateRange(@PathVariable Date startDate, @PathVariable Date endDate) {
-
-		try {
-			return campaignService.listCampaignByDateRange(startDate, endDate);
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error Listing the Campaign", e);
-		}
+    @GetMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<Campaign> getCampaignById(@PathVariable String id){
 		
+		try {
+			Optional<Campaign> campaignDto = campaignService.get(Long.parseLong(id));
+
+            return ResponseEntity.ok().body(campaignDto.get());
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 	}
 }
