@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -19,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mms.dto.CreateTemplateDto;
+import com.mms.dto.Pagination;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.DuplicatedRecordNameException;
 import com.mms.exception.RecordNotFoundException;
@@ -121,11 +121,11 @@ public class TemplateService {
 		return (TemplateDto) new DtoUtils().convertToDto(template.get(), new TemplateDto());
 	}
 
-	public List<TemplateDto> getTemplateListPaginated(int page, int size, String name) {
+	public Pagination<Template> getTemplateListPaginated(int page, int size, String name) {
 		Pageable paging = PageRequest.of(page, size);
 
 		Page<Template> templatePages;
-		List<TemplateDto> templateListVo = new ArrayList<TemplateDto>();
+		Pagination<Template> response = null;
 
 		if (name != null && !name.isEmpty()) {
 			templatePages = repository.findByNameContainingAndStatus(name, EStatus.ENABLED, paging);
@@ -134,20 +134,13 @@ public class TemplateService {
 		}
 
 		if (templatePages != null && !templatePages.isEmpty()) {
-			List<Template> templateList = templatePages.getContent();
-
-			templateListVo = templateList.stream()
-					.map(template -> (TemplateDto) new DtoUtils().convertToDto(template, new TemplateDto()))
-					.collect(Collectors.toList());
+			response = new Pagination<Template>(templatePages.getTotalPages(), templatePages.getTotalElements(),
+					templatePages.getNumber(), templatePages.getContent());
+		}else {
+			response = new Pagination<Template>(0, 0, 0, new ArrayList<Template>());
 		}
 
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("templates", templateListVo);
-//        response.put("currentPage", templatePages.getNumber());
-//        response.put("totalItems", templatePages.getTotalElements());
-//        response.put("totalPages", templatePages.getTotalPages());
-
-		return templateListVo;
+		return response;
 	}
 
 	public boolean disable(Long id) throws RecordNotFoundException {

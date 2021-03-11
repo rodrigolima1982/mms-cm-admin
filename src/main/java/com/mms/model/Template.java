@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
@@ -24,12 +25,13 @@ import javax.validation.constraints.Size;
 public class Template {
 
 	public Template(@NotBlank @Size(max = 20) String name, @NotBlank @Size(max = 30) String subject, String description,
-			Set<Slide> slides) {
+			Set<Slide> slides, @NotNull Operator operator) {
 		super();
 		this.name = name;
 		this.subject = subject;
 		this.description = description;
 		this.slides = slides;
+		this.operator=operator;
 	}
 
 	public Template() {

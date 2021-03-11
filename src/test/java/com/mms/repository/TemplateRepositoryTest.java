@@ -44,7 +44,7 @@ public class TemplateRepositoryTest {
 	@Test
 	public void testFindById_thenReturnTemplate() {
 		// given
-		Template template = new Template("Test Name", "Test Subject", "Test Description", null);
+		Template template = new Template("Test Name", "Test Subject", "Test Description", null, null);
 		
 		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
 				"Hello, World!".getBytes());
@@ -76,7 +76,7 @@ public class TemplateRepositoryTest {
 	@Test
 	public void testFindById_thenReturnNull() {
 		// given
-		Template template = new Template("Test Name", "Test Subject", "Test Description", null);
+		Template template = new Template("Test Name", "Test Subject", "Test Description", null, null);
 		entityManager.persist(template);
 		entityManager.flush();
 
@@ -92,7 +92,7 @@ public class TemplateRepositoryTest {
 		// given
 		Template template;
 		for (int i = 0; i < 50; i++) {
-			template = new Template("Test Name - " + i, "Test Subject" + i, "Test Description" + i, null);
+			template = new Template("Test Name - " + i, "Test Subject" + i, "Test Description" + i, null, null);
 			entityManager.persist(template);
 			entityManager.flush();
 
@@ -115,7 +115,7 @@ public class TemplateRepositoryTest {
 		// given
 		Template template;
 		for (int i = 0; i < 50; i++) {
-			template = new Template("Test Name - " + i, "Test Subject" + i, "Test Description" + i, null);
+			template = new Template("Test Name - " + i, "Test Subject" + i, "Test Description" + i, null, null);
 			entityManager.persist(template);
 			entityManager.flush();
 
@@ -138,7 +138,7 @@ public class TemplateRepositoryTest {
 		// given
 		Template template;
 		for (int i = 0; i < 50; i++) {
-			template = new Template("Test Name - " + i, "Test Subject - " + i, "Test Description - " + i, null);
+			template = new Template("Test Name - " + i, "Test Subject - " + i, "Test Description - " + i, null, null);
 			entityManager.persist(template);
 			entityManager.flush();
 
@@ -161,7 +161,7 @@ public class TemplateRepositoryTest {
 		// given
 		Template template;
 		for (int i = 0; i < 50; i++) {
-			template = new Template("Test Name - " + i, "Test Subject - " + i, "Test Description - " + i, null);
+			template = new Template("Test Name - " + i, "Test Subject - " + i, "Test Description - " + i, null, null);
 			entityManager.persist(template);
 			entityManager.flush();
 
@@ -185,7 +185,7 @@ public class TemplateRepositoryTest {
 				"Hello, World!".getBytes());
 		SlideImage image;
 		try {
-			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null, null);
 			
 			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
 			Slide slide = new Slide("venha para o TIM Controle", 0, image);
@@ -211,7 +211,7 @@ public class TemplateRepositoryTest {
 				"Hello, World!".getBytes());
 		SlideImage image;
 		try {
-			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null, null);
 			
 			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
 			Slide slide = new Slide("venha para o TIM Controle", 0, image);
@@ -221,7 +221,7 @@ public class TemplateRepositoryTest {
 			createdTemplate.setSlides(slides);
 			
 			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
-			Template createdTemplateDuplicated = new Template("Teste Template", "Template Subject", "Template Description", null);
+			Template createdTemplateDuplicated = new Template("Teste Template", "Template Subject", "Template Description", null, null);
 			Slide slideDuplicated = new Slide("venha para o TIM Controle", 0, image);
 			slideDuplicated.setTemplate(createdTemplateDuplicated);
 			Set<Slide> slidesDuplicated = new HashSet<Slide>();
@@ -246,7 +246,7 @@ public class TemplateRepositoryTest {
 				"Hello, World!".getBytes());
 		SlideImage image;
 		try {
-			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null, null);
 			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
 			Slide slide = new Slide("venha para o TIM Controle", 0, image);
 			slide.setTemplate(createdTemplate);

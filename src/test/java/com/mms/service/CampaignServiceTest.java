@@ -51,7 +51,7 @@ public class CampaignServiceTest {
 		MockitoAnnotations.initMocks(this);
 
 		this.createCampaignDTO = new BasicCampaignDto("Test Campaign", 130, true, false, 1000, 1L, 1L);
-		this.template = Optional.of(new Template("Test Name", "Test Subject", "Test Description", null));
+		this.template = Optional.of(new Template("Test Name", "Test Subject", "Test Description", null, null));
 		this.operator = Optional.of(new Operator(1L, "TIM", "Brazil"));
 
 		this.campaign = new Campaign(1L, "Test Campaign", 130, true, false, 1000);

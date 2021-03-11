@@ -35,9 +35,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mms.dto.CreateTemplateDto;
+import com.mms.dto.Pagination;
 import com.mms.dto.SlideDto;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.RecordNotFoundException;
+import com.mms.model.Template;
 import com.mms.service.TemplateService;
 
 @WebMvcTest(controllers = TemplateController.class)
@@ -150,23 +152,25 @@ public class TemplateControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     void testGetAll() throws Exception {
-        TemplateDto templateOne = new TemplateDto(1L, "Test Name 01", "Test Subject 01", "Test Description 01", slides);
-        TemplateDto templateTwo = new TemplateDto(2L, "Test Name 02", "Test Subject 02", "Test Description 02", slides);
-        TemplateDto templateThree = new TemplateDto(3L, "Test Name 03", "Test Subject 03", "Test Description 03", slides);
+        Template templateOne = new Template("Test Name 01", "Test Subject 01", "Test Description 01", null, null);
+        Template templateTwo = new Template("Test Name 02", "Test Subject 02", "Test Description 02", null, null);
+        Template templateThree = new Template("Test Name 03", "Test Subject 03", "Test Description 03", null, null);
 
-        List<TemplateDto> templateListDto = new ArrayList<TemplateDto>();
-        templateListDto.add(templateOne);
-        templateListDto.add(templateTwo);
-        templateListDto.add(templateThree);
-
-        given(service.getTemplateListPaginated(0, 3, "name")).willReturn(templateListDto);
+        List<Template> templateList = new ArrayList<Template>();
+        templateList.add(templateOne);
+        templateList.add(templateTwo);
+        templateList.add(templateThree);
+        
+        Pagination<Template> response = new Pagination<Template>(1, 3, 0, templateList);
+        
+        given(service.getTemplateListPaginated(0, 3, "name")).willReturn(response);
 
         this.mockMvc.perform(
                 get("/api/mms-sender/template").param("size", "3").param("page", "0").param("name", "name")
         )
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(3)));
+                .andExpect(jsonPath("$.elements.size()", is(3)));
     }
 
 //    @Test

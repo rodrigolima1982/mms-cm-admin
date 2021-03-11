@@ -39,7 +39,7 @@ public class SlideRepositoryTest {
 				"Hello, World!".getBytes());
 		SlideImage image;
 		try {
-			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+			Template createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null, null);
 			image = new SlideImage(file.getContentType(), file.getOriginalFilename(), file.getBytes());
 			Slide slide = new Slide("venha para o TIM Controle", 0, image);
 			slide.setTemplate(createdTemplate);

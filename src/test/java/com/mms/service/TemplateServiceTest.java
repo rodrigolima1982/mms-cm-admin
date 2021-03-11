@@ -31,6 +31,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mms.dto.CreateTemplateDto;
+import com.mms.dto.Pagination;
 import com.mms.dto.SlideDto;
 import com.mms.dto.TemplateDto;
 import com.mms.exception.DuplicatedRecordNameException;
@@ -73,15 +74,15 @@ public class TemplateServiceTest {
 	void setUp() {
 
 		MockitoAnnotations.initMocks(this);
-		this.template = Optional.of(new Template("Test Name", "Test Subject", "Test Description", null));
-		this.updatedTemplate = new Template("Updated Name", "Updated Subject", "Updated Description", null);
+		this.template = Optional.of(new Template("Test Name", "Test Subject", "Test Description", null, null));
+		this.updatedTemplate = new Template("Updated Name", "Updated Subject", "Updated Description", null, null);
 
 		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE,
 				"Hello, World!".getBytes());
 		files.add(file);
 
 		
-		this.createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null);
+		this.createdTemplate = new Template("Teste Template", "Template Subject", "Template Description", null, null);
 		
 
 		createdTemplate.setSlides(new HashSet<Slide>());
@@ -174,9 +175,9 @@ public class TemplateServiceTest {
 		int size = 10;
 		String name = "Test";
 
-		Template templateOne = new Template("Test Name 01", "Test Subject 01", "Test Description 01", null);
-		Template templateTwo = new Template("Test Name 02", "Test Subject 02", "Test Description 02", null);
-		Template templateThree = new Template("Test Name 03", "Test Subject 03", "Test Description 03", null);
+		Template templateOne = new Template("Test Name 01", "Test Subject 01", "Test Description 01", null, null);
+		Template templateTwo = new Template("Test Name 02", "Test Subject 02", "Test Description 02", null, null);
+		Template templateThree = new Template("Test Name 03", "Test Subject 03", "Test Description 03", null, null);
 
 		List<Template> templateList = new ArrayList<Template>();
 		templateList.add(templateOne);
@@ -188,12 +189,9 @@ public class TemplateServiceTest {
 		given(repository.findByNameContainingAndStatus(any(String.class), eq(EStatus.ENABLED), any(Pageable.class)))
 				.willReturn(list);
 
-		List<TemplateDto> response = service.getTemplateListPaginated(page, size, name);
+		Pagination<Template> response = service.getTemplateListPaginated(page, size, name);
 
-//        List<TemplateDto> templateDtoList = (List<TemplateDto>) response.get("templates");
-
-		assertEquals(response.size(), templateList.size());
-//        assertEquals((long) response.get("totalItems"), 3);
+		assertEquals(response.getElements().size(), templateList.size());
 		verify(repository, times(1)).findByNameContainingAndStatus(any(String.class), eq(EStatus.ENABLED),
 				any(Pageable.class));
 
@@ -205,9 +203,9 @@ public class TemplateServiceTest {
 		int size = 10;
 		String name = null;
 
-		Template templateOne = new Template("Test Name 01", "Test Subject 01", "Test Description 01", null);
-		Template templateTwo = new Template("Test Name 02", "Test Subject 02", "Test Description 02", null);
-		Template templateThree = new Template("Test Name 03", "Test Subject 03", "Test Description 03", null);
+		Template templateOne = new Template("Test Name 01", "Test Subject 01", "Test Description 01", null, null);
+		Template templateTwo = new Template("Test Name 02", "Test Subject 02", "Test Description 02", null, null);
+		Template templateThree = new Template("Test Name 03", "Test Subject 03", "Test Description 03", null, null);
 
 		List<Template> templateList = new ArrayList<Template>();
 		templateList.add(templateOne);
@@ -218,13 +216,9 @@ public class TemplateServiceTest {
 
 		given(repository.findByStatus(eq(EStatus.ENABLED), any(Pageable.class))).willReturn(list);
 
-		List<TemplateDto> response = service.getTemplateListPaginated(page, size, name);
+		Pagination<Template> response = service.getTemplateListPaginated(page, size, name);
 
-//        @SuppressWarnings("unchecked")
-//        List<TemplateDto> templateDtoList = (List<TemplateDto>) response.get("templates");
-
-		assertEquals(response.size(), templateList.size());
-//        assertEquals((long) response.get("totalItems"), 3);
+		assertEquals(response.getElements().size(), templateList.size());
 
 		verify(repository, times(1)).findByStatus(eq(EStatus.ENABLED), any(Pageable.class));
 
@@ -242,9 +236,9 @@ public class TemplateServiceTest {
 
 		given(repository.findByStatus(eq(EStatus.ENABLED), any(Pageable.class))).willReturn(list);
 
-		List<TemplateDto> response = service.getTemplateListPaginated(page, size, name);
+		Pagination<Template> response = service.getTemplateListPaginated(page, size, name);
 
-		assertEquals(response.size(), templateList.size());
+		assertEquals(response.getElements().size(), templateList.size());
 
 		verify(repository, times(1)).findByStatus(eq(EStatus.ENABLED), any(Pageable.class));
 

@@ -1,11 +1,10 @@
 package com.mms.controller;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mms.dto.CreateTemplateDto;
-import com.mms.dto.TemplateDto;
-import com.mms.exception.RecordNotFoundException;
-import com.mms.service.TemplateService;
+import java.util.List;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +13,25 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mms.dto.CreateTemplateDto;
+import com.mms.dto.Pagination;
+import com.mms.dto.TemplateDto;
+import com.mms.exception.RecordNotFoundException;
+import com.mms.model.Template;
+import com.mms.service.TemplateService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -84,10 +95,10 @@ public class TemplateController {
 
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping()
-    public ResponseEntity<List<TemplateDto>> getAllTemplates(@RequestParam(required = false) String name,
+    public ResponseEntity<Pagination<Template>> getTemplates(@RequestParam(required = false) String name,
                                                                @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         try {
-            List<TemplateDto> response = service.getTemplateListPaginated(page, size, name);
+        	Pagination<Template> response = service.getTemplateListPaginated(page, size, name);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
