@@ -41,6 +41,10 @@ public class UserService {
     public static  String TOKEN_EXPIRED = "expired";
     public static  String TOKEN_VALID = "valid";
 
+    public User create(User user) {
+        return userRepository.save(user);
+    }
+
     public Optional<User> getUser( String verificationToken) {
          VerificationToken token = tokenRepository.findByToken(verificationToken);
         if (token != null) {
@@ -90,15 +94,23 @@ public class UserService {
 
     public void createPasswordResetTokenForUser( User user,  String token) {
          PasswordResetToken myToken = new PasswordResetToken(token, user);
-        passwordTokenRepository.save(myToken);
+         passwordTokenRepository.save(myToken);
     }
 
-    public User findUserByEmail( String email) {
-        return userRepository.findByEmail(email);
+    public boolean existsByUsername( String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public boolean existsByEmail( String email) {
+        return userRepository.existsByEmail(email);
     }
 
     public PasswordResetToken getPasswordResetToken( String token) {
         return passwordTokenRepository.findByToken(token);
+    }
+
+    public Optional<User> findUserByEmail( String email) {
+        return Optional.ofNullable(userRepository.findByEmail(email));
     }
 
     public Optional<User> getUserByPasswordResetToken( String token) {

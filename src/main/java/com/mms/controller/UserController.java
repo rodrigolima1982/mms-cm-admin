@@ -8,7 +8,6 @@ import com.mms.model.Role;
 import com.mms.model.User;
 import com.mms.model.VerificationToken;
 import com.mms.repository.RoleRepository;
-import com.mms.repository.UserRepository;
 import com.mms.dto.SignUpDto;
 import com.mms.security.payload.response.MessageResponse;
 import com.mms.events.OnRegisterCompleteEvent;
@@ -37,9 +36,6 @@ import java.util.UUID;
 public class UserController {
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
     RoleRepository roleRepository;
 
     @Autowired
@@ -65,14 +61,14 @@ public class UserController {
 
     // TODO: passar lógica para o UserService
     @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpDto signUpDto, HttpServletRequest request) {
-        if (userRepository.existsByUsername(signUpDto.getUsername())) {
+    public ResponseEntity<?> signUp(HttpServletRequest request, @Valid @RequestBody SignUpDto signUpDto) {
+        if (userService.existsByUsername(signUpDto.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (userRepository.existsByEmail(signUpDto.getEmail())) {
+        if (userService.existsByEmail(signUpDto.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
@@ -114,7 +110,7 @@ public class UserController {
         }
 
         user.setRoles(roles);
-        User registeredUser = userRepository.save(user);
+        User registeredUser = userService.create(user);
 
         eventPublisher.publishEvent(new OnRegisterCompleteEvent(registeredUser, request));
 
@@ -122,7 +118,7 @@ public class UserController {
     }
 
     @PostMapping("/signUpConfirm")
-    public ResponseEntity<?> signUpConfirm(@Valid @RequestBody SignUpConfirmDto signUpConfirmDto) {
+    public ResponseEntity<?> signUpConfirm(@Valid @RequestParam SignUpConfirmDto signUpConfirmDto) {
         String result = userService.validateVerificationToken(signUpConfirmDto.getToken());
         if (result.equals("valid")) {
             if (!signUpConfirmDto.getPassword().equals(signUpConfirmDto.getConfirmPassword())) {
@@ -153,11 +149,11 @@ public class UserController {
 
     @PostMapping("/resetPassword")
     public ResponseEntity<?> resetPassword(HttpServletRequest request, @RequestParam("email") String userEmail) {
-        User user = userService.findUserByEmail(userEmail);
-        if (user != null) {
+        Optional<User> user = userService.findUserByEmail(userEmail);
+        if (user.isPresent()) {
             String token = UUID.randomUUID().toString();
-            userService.createPasswordResetTokenForUser(user, token);
-            mailSender.send(mailMessageService.constructResetTokenEmail(request, token, user));
+            userService.createPasswordResetTokenForUser(user.get(), token);
+            mailSender.send(mailMessageService.constructResetTokenEmail(request, token, user.get()));
         }
         return ResponseEntity.ok(new MessageResponse("User resetPassword successfully!"));
     }
@@ -181,11 +177,11 @@ public class UserController {
 
     @PostMapping("/updatePassword")
     public ResponseEntity<?> changeUserPassword(@Valid PasswordDto passwordDto) {
-        User user = userService.findUserByEmail(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail());
-        if (!userService.checkIfValidOldPassword(user, passwordDto.getOldPassword())) {
+        Optional<User> user = userService.findUserByEmail(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail());
+        if (!userService.checkIfValidOldPassword(user.get(), passwordDto.getOldPassword())) {
             throw new InvalidOldPasswordException();
         }
-        userService.changeUserPassword(user, passwordDto.getNewPassword());
+        userService.changeUserPassword(user.get(), passwordDto.getNewPassword());
         return ResponseEntity.ok(new MessageResponse("User updatePassword successfully!"));
     }
 
