@@ -143,11 +143,17 @@ public class TemplateService {
 		return response;
 	}
 
+	/**
+	 * Disable an existing Template
+	 * @param id
+	 * @return
+	 * @throws RecordNotFoundException
+	 */
 	public boolean disable(Long id) throws RecordNotFoundException {
 
 		Optional<Template> template = repository.findById(id);
 
-		if (!template.isPresent()) {
+		if (!template.isPresent()||template.get().getStatus()==EStatus.DISABLED) {
 			throw new RecordNotFoundException("Template not found for the given id: " + id);
 		} else {
 			if (template.get().getCampaigns().isEmpty()) {

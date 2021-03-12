@@ -139,6 +139,7 @@ public class CampaignService {
 
 	/**
 	 * Get the Campaign list paginated.
+	 * 
 	 * @param page
 	 * @param size
 	 * @param name
@@ -167,7 +168,24 @@ public class CampaignService {
 		return response;
 	}
 
+	/**
+	 * Disable an existing campaign
+	 * @param id
+	 * @return
+	 * @throws RecordNotFoundException
+	 */
 	public boolean disable(@NotNull Long id) throws RecordNotFoundException {
+
+		Optional<Campaign> campaign = campaignRepository.findById(id);
+
+		if (!campaign.isPresent() || campaign.get().getStatus()==EStatus.DISABLED) {
+			throw new RecordNotFoundException("Template not found for the given id: " + id);
+		} else {
+
+			campaign.get().setStatus(EStatus.DISABLED);
+			campaignRepository.save(campaign.get());
+
+		}
 
 		return true;
 

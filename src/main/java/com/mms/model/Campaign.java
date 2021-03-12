@@ -5,6 +5,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -50,6 +52,10 @@ public class Campaign {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@NotNull
 	private Operator operator;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "varchar(10) default 'ENABLED'")
+	private EStatus status = EStatus.ENABLED;
 
 	public Campaign() {
 		super();
@@ -135,6 +141,14 @@ public class Campaign {
 
 	public void setNumberOfUsers(int numberOfUsers) {
 		this.numberOfUsers = numberOfUsers;
+	}
+
+	public EStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(EStatus status) {
+		this.status = status;
 	}
 
 }
