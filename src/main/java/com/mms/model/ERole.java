@@ -1,17 +1,17 @@
 package com.mms.model;
 public enum ERole {
   ROLE_USER(1), ROLE_MODERATOR(2), ROLE_ADMIN(3);
-  private final int id;
+  private final long id;
 
-  ERole(int id) {
+  ERole(long id) {
     this.id = id;
   }
 
-  public int id() {
+  public long id() {
     return id;
   }
 
-  public static ERole byId(int code) {
+  public static ERole byId(long code) {
     for (ERole type : ERole.values()) {
       if (code == type.id()) return type;
     }

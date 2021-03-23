@@ -118,7 +118,7 @@ public class UserController {
     }
 
     @PostMapping("/signUpConfirm")
-    public ResponseEntity<?> signUpConfirm(@Valid @RequestParam SignUpConfirmDto signUpConfirmDto) {
+    public ResponseEntity<?> signUpConfirm(@Valid @RequestBody SignUpConfirmDto signUpConfirmDto) {
         String result = userService.validateVerificationToken(signUpConfirmDto.getToken());
         if (result.equals("valid")) {
             if (!signUpConfirmDto.getPassword().equals(signUpConfirmDto.getConfirmPassword())) {
@@ -137,7 +137,7 @@ public class UserController {
         return ResponseEntity.badRequest().body(new MessageResponse("Error: invalid token!"));
     }
 
-        @GetMapping("/resendRegisterToken")
+    @GetMapping("/resendRegisterToken")
     public ResponseEntity<?> resendRegisterToken(HttpServletRequest request, @RequestParam("token") String existingToken) {
         VerificationToken newToken = userService.generateNewVerificationToken(existingToken);
         Optional<User> user = userService.getUser(newToken.getToken());
