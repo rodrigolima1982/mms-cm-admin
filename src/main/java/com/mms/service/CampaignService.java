@@ -160,9 +160,9 @@ public class CampaignService {
 
 		if (campaignPage != null && !campaignPage.isEmpty()) {
 			response = new Pagination<Campaign>(campaignPage.getTotalPages(), campaignPage.getTotalElements(),
-					campaignPage.getNumber(), campaignPage.getContent());
+					campaignPage.getNumber(), campaignPage.getSize(), campaignPage.getContent());
 		} else {
-			response = new Pagination<Campaign>(0, 0, 0, null);
+			response = new Pagination<Campaign>(0, 0, 0, 0, null);
 		}
 
 		return response;

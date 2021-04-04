@@ -161,7 +161,7 @@ public class TemplateControllerTest {
         templateList.add(templateTwo);
         templateList.add(templateThree);
         
-        Pagination<Template> response = new Pagination<Template>(1, 3, 0, templateList);
+        Pagination<Template> response = new Pagination<Template>(1, 3, 0, 3, templateList);
         
         given(service.getTemplateListPaginated(0, 3, "name")).willReturn(response);
 
