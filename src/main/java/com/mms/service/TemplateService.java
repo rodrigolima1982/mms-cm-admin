@@ -135,9 +135,9 @@ public class TemplateService {
 
 		if (templatePages != null && !templatePages.isEmpty()) {
 			response = new Pagination<Template>(templatePages.getTotalPages(), templatePages.getTotalElements(),
-					templatePages.getNumber(), templatePages.getContent());
+					templatePages.getNumber(), templatePages.getSize(), templatePages.getContent());
 		}else {
-			response = new Pagination<Template>(0, 0, 0, new ArrayList<Template>());
+			response = new Pagination<Template>(0, 0, 0, 0, new ArrayList<Template>());
 		}
 
 		return response;
